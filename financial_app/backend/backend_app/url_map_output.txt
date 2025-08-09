@@ -1,0 +1,53 @@
+
+--- App URL Map ---
+Rule: static, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /static/<path:filename>
+Rule: user_bp.register, Methods: {'OPTIONS', 'POST'}, Path: /api/register
+Rule: user_bp.login, Methods: {'OPTIONS', 'POST'}, Path: /api/login
+Rule: user_bp.protected, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/protected
+Rule: category_bp.add_category, Methods: {'OPTIONS', 'POST'}, Path: /api/categories
+Rule: category_bp.get_categories, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/categories
+Rule: category_bp.get_category, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/categories/<int:id>
+Rule: category_bp.update_category, Methods: {'OPTIONS', 'PUT'}, Path: /api/categories/<int:id>
+Rule: category_bp.delete_category, Methods: {'OPTIONS', 'DELETE'}, Path: /api/categories/<int:id>
+Rule: payment_method_bp.add_payment_method, Methods: {'OPTIONS', 'POST'}, Path: /api/payment-methods
+Rule: payment_method_bp.get_payment_methods, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/payment-methods
+Rule: payment_method_bp.get_payment_method, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/payment-methods/<int:id>
+Rule: payment_method_bp.update_payment_method, Methods: {'OPTIONS', 'PUT'}, Path: /api/payment-methods/<int:id>
+Rule: payment_method_bp.delete_payment_method, Methods: {'OPTIONS', 'DELETE'}, Path: /api/payment-methods/<int:id>
+Rule: investment_type_bp.add_investment_type, Methods: {'OPTIONS', 'POST'}, Path: /api/investment-types
+Rule: investment_type_bp.get_investment_types, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/investment-types
+Rule: investment_type_bp.get_investment_type, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/investment-types/<int:id>
+Rule: investment_type_bp.update_investment_type, Methods: {'OPTIONS', 'PUT'}, Path: /api/investment-types/<int:id>
+Rule: investment_type_bp.delete_investment_type, Methods: {'OPTIONS', 'DELETE'}, Path: /api/investment-types/<int:id>
+Rule: transaction_bp.add_transaction, Methods: {'OPTIONS', 'POST'}, Path: /api/transactions
+Rule: transaction_bp.get_transactions, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/transactions
+Rule: transaction_bp.get_transaction, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/transactions/<int:id>
+Rule: transaction_bp.update_transaction, Methods: {'OPTIONS', 'PUT'}, Path: /api/transactions/<int:id>
+Rule: transaction_bp.delete_transaction, Methods: {'OPTIONS', 'DELETE'}, Path: /api/transactions/<int:id>
+Rule: transaction_bp.get_transactions_summary, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/transactions/summary
+Rule: credit_card_bp.add_credit_card, Methods: {'OPTIONS', 'POST'}, Path: /api/credit-cards
+Rule: credit_card_bp.get_credit_cards, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/credit-cards
+Rule: credit_card_bp.get_credit_card, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/credit-cards/<int:id>
+Rule: credit_card_bp.update_credit_card, Methods: {'OPTIONS', 'PUT'}, Path: /api/credit-cards/<int:id>
+Rule: credit_card_bp.delete_credit_card, Methods: {'OPTIONS', 'DELETE'}, Path: /api/credit-cards/<int:id>
+Rule: credit_card_bp.add_credit_card_transaction, Methods: {'OPTIONS', 'POST'}, Path: /api/credit-card-transactions
+Rule: credit_card_bp.get_credit_card_transactions, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/credit-card-transactions
+Rule: credit_card_bp.get_credit_card_transaction, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/credit-card-transactions/<int:id>
+Rule: credit_card_bp.update_credit_card_transaction, Methods: {'OPTIONS', 'PUT'}, Path: /api/credit-card-transactions/<int:id>
+Rule: credit_card_bp.delete_credit_card_transaction, Methods: {'OPTIONS', 'DELETE'}, Path: /api/credit-card-transactions/<int:id>
+Rule: investment_bp.add_investment, Methods: {'OPTIONS', 'POST'}, Path: /api/investments
+Rule: investment_bp.get_investments, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/investments
+Rule: investment_bp.get_investment, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/investments/<int:id>
+Rule: investment_bp.update_investment, Methods: {'OPTIONS', 'PUT'}, Path: /api/investments/<int:id>
+Rule: investment_bp.delete_investment, Methods: {'OPTIONS', 'DELETE'}, Path: /api/investments/<int:id>
+Rule: investment_bp.get_investments_summary, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/investments/summary
+Rule: goal_bp.add_goal, Methods: {'OPTIONS', 'POST'}, Path: /api/goals
+Rule: goal_bp.get_goals, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/goals
+Rule: goal_bp.get_goal, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/goals/<int:id>
+Rule: goal_bp.update_goal, Methods: {'OPTIONS', 'PUT'}, Path: /api/goals/<int:id>
+Rule: goal_bp.delete_goal, Methods: {'OPTIONS', 'DELETE'}, Path: /api/goals/<int:id>
+Rule: goal_bp.contribute_to_goal, Methods: {'OPTIONS', 'POST'}, Path: /api/goals/<int:id>/contribute
+Rule: goal_bp.get_goals_summary, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /api/goals/summary
+Rule: serve, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /
+Rule: serve, Methods: {'OPTIONS', 'HEAD', 'GET'}, Path: /<path:path>
+-------------------
