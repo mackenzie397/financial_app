@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import api from '../lib/api.js';
+import { Pencil, Trash2 } from 'lucide-react';
+import { Button } from './ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import TransactionForm from './TransactionForm';
 
-const TransactionList = ({ period, onTransactionChange }) => {
+const TransactionList = ({ period, refreshTrigger }) => {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentTransaction, setCurrentTransaction] = useState(null);
 
   const fetchTransactions = async () => {
     if (!user || !period) return;
@@ -33,7 +40,6 @@ const TransactionList = ({ period, onTransactionChange }) => {
   };
 
   const handleDeleteTransaction = async (id) => {
-    if (!window.confirm('Tem certeza que deseja excluir esta transação?')) return;
 
     try {
       await api.delete(`/transactions/${id}`);
@@ -58,7 +64,7 @@ const TransactionList = ({ period, onTransactionChange }) => {
 
   useEffect(() => {
     fetchTransactions();
-  }, [user, period]);
+  }, [user, period, refreshTrigger]);
 
   if (loading) {
     return (
@@ -115,54 +121,99 @@ const TransactionList = ({ period, onTransactionChange }) => {
         {transactions.map((transaction) => (
           <div
             key={transaction.id}
-            className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+            className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow duration-200 flex items-center justify-between"
           >
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <div className="flex items-center space-x-3 mb-2">
-                  <h5 className="font-medium text-foreground">
-                    {transaction.description}
-                  </h5>
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    transaction.transaction_type === 'income'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {transaction.transaction_type === 'income' ? 'Receita' : 'Despesa'}
-                  </span>
-                </div>
-                
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <p>Data: {formatDate(transaction.date)}</p>
-                  {transaction.category_name && (
-                    <p>Categoria: {transaction.category_name}</p>
-                  )}
-                  {transaction.payment_method_name && (
-                    <p>Forma de pagamento: {transaction.payment_method_name}</p>
-                  )}
-                  {transaction.notes && (
-                    <p>Observações: {transaction.notes}</p>
-                  )}
-                </div>
+            <div className="flex-1 flex items-center space-x-4">
+              {/* Ícone de cor (placeholder) */}
+              <div className="w-3 h-3 rounded-full bg-blue-500"></div> {/* Placeholder for color icon */}
+              <div>
+                <h5 className="font-medium text-foreground">
+                  {transaction.description}
+                </h5>
+                <p className="text-sm text-muted-foreground">
+                  {transaction.category_name} • {formatDate(transaction.date)}
+                </p>
               </div>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <span className={`text-lg font-bold ${
+                transaction.transaction_type === 'income'
+                  ? 'text-primary'
+                  : 'text-destructive'
+              }`}>
+                {transaction.transaction_type === 'income' ? '+' : '-'}
+                {formatCurrency(Math.abs(transaction.amount))}
+              </span>
               
-              <div className="flex items-center space-x-3">
-                <span className={`text-lg font-bold ${
-                  transaction.transaction_type === 'income'
-                    ? 'text-primary'
-                    : 'text-destructive'
-                }`}>
-                  {transaction.transaction_type === 'income' ? '+' : '-'}
-                  {formatCurrency(Math.abs(transaction.amount))}
-                </span>
-                
-                <button
-                  onClick={() => handleDeleteTransaction(transaction.id)}
-                  className="text-destructive hover:text-destructive/90 text-sm"
-                  title="Excluir transação"
-                >
-                  🗑️
-                </button>
+              <div className="flex items-center space-x-2">
+                {/* Edit Button */}
+                <Dialog open={isEditing && currentTransaction?.id === transaction.id} onOpenChange={(open) => {
+                  if (!open) {
+                    setIsEditing(false);
+                    setCurrentTransaction(null);
+                  }
+                }}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setCurrentTransaction(transaction);
+                        setIsEditing(true);
+                      }}
+                      title="Editar transação"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Editar Transação</DialogTitle>
+                    </DialogHeader>
+                    <TransactionForm
+                      transaction={currentTransaction}
+                      onSave={() => {
+                        setIsEditing(false);
+                        setCurrentTransaction(null);
+                        fetchTransactions(); // Re-fetch transactions after save
+                        if (onTransactionChange) onTransactionChange();
+                      }}
+                      onCancel={() => {
+                        setIsEditing(false);
+                        setCurrentTransaction(null);
+                      }}
+                    />
+                  </DialogContent>
+                </Dialog>
+
+                {/* Delete Button */}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:text-destructive/90"
+                      title="Excluir transação"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Esta ação não pode ser desfeita. Isso excluirá permanentemente esta transação.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDeleteTransaction(transaction.id)}>
+                        Excluir
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </div>

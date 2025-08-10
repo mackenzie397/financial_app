@@ -114,157 +114,146 @@ const TransactionForm = ({ transaction = null, onSave, onCancel }) => {
   const showPaymentMethodField = formData.transaction_type === 'expense';
 
   return (
-    <div className="fixed inset-0 bg-background bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-card rounded-lg shadow-lg w-full max-w-md">
-        <div className="p-6">
-          <h2 className="text-xl font-bold text-foreground mb-4">
-            {transaction ? 'Editar Transação' : 'Nova Transação'}
-          </h2>
+    <div className="p-0">
+      <h2 className="text-xl font-bold text-foreground mb-4">
+        {transaction ? 'Editar Transação' : 'Nova Transação'}
+      </h2>
 
-          {error && (
-            <div className="bg-destructive/20 border border-destructive text-destructive-foreground px-4 py-3 rounded mb-4">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1">
-                Descrição
-              </label>
-              <input
-                type="text"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-input text-foreground"
-                placeholder="Ex: Compra no supermercado"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1">
-                Valor
-              </label>
-              <input
-                type="number"
-                name="amount"
-                value={formData.amount}
-                onChange={handleChange}
-                required
-                step="0.01"
-                min="0"
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-input text-foreground"
-                placeholder="0,00"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1">
-                Tipo
-              </label>
-              <select
-                name="transaction_type"
-                value={formData.transaction_type}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-input text-foreground"
-              >
-                <option value="expense">Despesa</option>
-                <option value="income">Receita</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1">
-                Categoria
-              </label>
-              <select
-                name="category_id"
-                value={formData.category_id}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-input text-foreground"
-              >
-                <option value="">Selecione uma categoria</option>
-                {categories.map(category => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {showPaymentMethodField && (
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">
-                  Forma de Pagamento
-                </label>
-                <select
-                  name="payment_method_id"
-                  value={formData.payment_method_id}
-                  onChange={handleChange}
-                  required={showPaymentMethodField} // Make required only if visible
-                  className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-input text-foreground"
-                >
-                  <option value="">Selecione uma forma de pagamento</option>
-                  {paymentMethods.map(method => (
-                    <option key={method.id} value={method.id}>
-                      {method.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1">
-                Data
-              </label>
-              <input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-input text-foreground"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-1">
-                Observações
-              </label>
-              <textarea
-                name="notes"
-                value={formData.notes}
-                onChange={handleChange}
-                rows="3"
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-input text-foreground"
-                placeholder="Observações adicionais (opcional)"
-              />
-            </div>
-
-            <div className="flex space-x-3 pt-4">
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-2 px-4 rounded-md font-medium"
-              >
-                {loading ? 'Salvando...' : (transaction ? 'Atualizar' : 'Salvar')}
-              </button>
-              <button
-                type="button"
-                onClick={onCancel}
-                className="flex-1 bg-muted hover:bg-muted/90 text-muted-foreground py-2 px-4 rounded-md font-medium"
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
+      {error && (
+        <div className="bg-red-500/20 border border-red-500 text-red-500-foreground px-4 py-3 rounded mb-4">
+          {error}
         </div>
-      </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Descrição
+          </label>
+          <input
+            type="text"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            required
+            className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-input text-foreground"
+            placeholder="Ex: Compra no supermercado"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Valor
+          </label>
+          <input
+            type="number"
+            name="amount"
+            value={formData.amount}
+            onChange={handleChange}
+            required
+            step="0.01"
+            min="0"
+            className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-input text-foreground"
+            placeholder="0,00"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Tipo
+          </label>
+          <select
+            name="transaction_type"
+            value={formData.transaction_type}
+            onChange={handleChange}
+            required
+            className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-input text-foreground"
+          >
+            <option value="expense">Despesa</option>
+            <option value="income">Receita</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Categoria
+          </label>
+          <select
+            name="category_id"
+            value={formData.category_id}
+            onChange={handleChange}
+            required
+            className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-input text-foreground"
+          >
+            <option value="">Selecione uma categoria</option>
+            {categories.map(category => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {showPaymentMethodField && (
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Forma de Pagamento
+            </label>
+            <select
+              name="payment_method_id"
+              value={formData.payment_method_id}
+              onChange={handleChange}
+              required={showPaymentMethodField} // Make required only if visible
+              className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-input text-foreground"
+            >
+              <option value="">Selecione uma forma de pagamento</option>
+              {paymentMethods.map(method => (
+                <option key={method.id} value={method.id}>
+                  {method.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Data
+          </label>
+          <input
+            type="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+            required
+            className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-input text-foreground"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1">
+            Observações
+          </label>
+          <textarea
+            name="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            rows="3"
+            className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-input text-foreground"
+            placeholder="Observações adicionais (opcional)"
+          />
+        </div>
+
+        <div className="flex space-x-3 pt-4">
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-2 px-4 rounded-md font-medium"
+          >
+            {loading ? 'Salvando...' : (transaction ? 'Atualizar' : '+ Adicionar Transação')}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
