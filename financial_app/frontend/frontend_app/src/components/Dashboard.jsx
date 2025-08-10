@@ -8,17 +8,20 @@ import TransactionForm from './TransactionForm.jsx';
 import InvestmentForm from './InvestmentForm.jsx';
 import GoalForm from './GoalForm.jsx';
 import Charts from './Charts.jsx';
+import InvestmentList from './InvestmentList.jsx';
+import GoalList from './GoalList.jsx';
+import { Sun, Moon } from 'lucide-react';
+import { useTheme } from '../context/ThemeProvider.jsx';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('transactions');
-  const [showTransactionForm, setShowTransactionForm] = useState(false);
-  const [showInvestmentForm, setShowInvestmentForm] = useState(false);
-  const [showGoalForm, setShowGoalForm] = useState(false);
+  const { theme, toggleTheme } = useTheme();
   const [period, setPeriod] = useState({
     year: new Date().getFullYear(),
     month: new Date().getMonth() + 1
   });
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [activeView, setActiveView] = useState('dashboard');
 
   if (!user) {
     return (
@@ -28,103 +31,23 @@ const Dashboard = () => {
     );
   }
 
-  const handleTransactionSaved = () => {
-    setShowTransactionForm(false);
-  };
-
-  const handleInvestmentSaved = () => {
-    setShowInvestmentForm(false);
-  };
-
-  const handleGoalSaved = () => {
-    setShowGoalForm(false);
-  };
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'transactions':
-        return (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-foreground">Lançamentos</h3>
-              <button
-                onClick={() => setShowTransactionForm(true)}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md transition-colors duration-200"
-              >
-                Nova Transação
-              </button>
-            </div>
-            <TransactionList 
-              period={period} 
-              onTransactionChange={() => {}} 
-            />
-          </div>
-        );
-      
-      case 'investments':
-        return (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-foreground">Investimentos</h3>
-              <button
-                onClick={() => setShowInvestmentForm(true)}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md transition-colors duration-200"
-              >
-                Novo Investimento
-              </button>
-            </div>
-            {/* A lista de investimentos será renderizada aqui */}
-          </div>
-        );
-      
-      case 'goals':
-        return (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-foreground">Metas</h3>
-              <button
-                onClick={() => setShowGoalForm(true)}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md transition-colors duration-200"
-              >
-                Nova Meta
-              </button>
-            </div>
-            {/* A lista de metas será renderizada aqui */}
-          </div>
-        );
-      
-      case 'reports':
-        return (
-          <div className="space-y-6">
-            <div className="bg-card rounded-lg border border-border p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">
-                📊 Relatórios e Análises
-              </h3>
-              <p className="text-muted-foreground mb-6">
-                Visualize seus dados financeiros através de gráficos e análises detalhadas.
-              </p>
-            </div>
-            <Charts period={period} />
-          </div>
-        );
-      
-      case 'settings':
-        return <Settings />;
-      
-      default:
-        return <div>Página não encontrada</div>;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border px-4 py-3">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">Organização Financeira</h1>
-            <p className="text-sm text-muted-foreground">Bem-vindo, {user?.username}!</p>
-          </div>
+    <div className="min-h-screen bg-background text-foreground">
+      {/* HEADER */}
+      <header className="bg-card p-4 flex justify-between items-center">
+        <div className="flex items-center space-x-2">
+          {/* Logo/Icone Livro */}
+          <span className="text-2xl">📚</span>
+          <h1 className="text-xl font-bold">Organizador Financeiro</h1>
+        </div>
+        <div className="flex items-center space-x-4">
+          {/* Botão Tema */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-full bg-muted hover:bg-muted/90"
+          >
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </button>
           <button
             onClick={logout}
             className="bg-destructive hover:bg-destructive/90 text-destructive-foreground px-4 py-2 rounded-md font-medium transition-colors"
@@ -134,105 +57,97 @@ const Dashboard = () => {
         </div>
       </header>
 
-      {/* Period Selector */}
-      <div className="bg-card border-b border-border px-4 py-3">
-        <PeriodSelector period={period} onPeriodChange={setPeriod} />
-      </div>
+      {/* MENU SUPERIOR */}
+      <nav className="bg-card px-4 py-2 flex space-x-4 border-b border-border">
+        <button
+          onClick={() => setActiveView('dashboard')}
+          className={`px-4 py-2 rounded-md ${activeView === 'dashboard' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          Dashboard
+        </button>
+        <button
+          onClick={() => setActiveView('goals')}
+          className={`px-4 py-2 rounded-md ${activeView === 'goals' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          Metas
+        </button>
+        <button
+          onClick={() => setActiveView('categories')}
+          className={`px-4 py-2 rounded-md ${activeView === 'categories' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          Categorias
+        </button>
+        <button
+          onClick={() => setActiveView('reports')}
+          className={`px-4 py-2 rounded-md ${activeView === 'reports' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          Relatórios
+        </button>
+        <button
+          onClick={() => setActiveView('settings')}
+          className={`px-4 py-2 rounded-md ${activeView === 'settings' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          Configurações
+        </button>
+      </nav>
 
-      {/* Dashboard Cards */}
-      <div className="bg-card border-b border-border px-4 py-4">
-        <DashboardCards period={period} />
-      </div>
+      <main className="p-4 space-y-6">
+        {activeView === 'dashboard' && (
+          <>
+            {/* Main Cards Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <DashboardCards period={period} />
+            </div>
 
-      {/* Navigation Tabs */}
-      <div className="bg-card border-b border-border px-4">
-        <div className="flex space-x-1 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('transactions')}
-            className={`flex items-center space-x-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'transactions'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <span>📝</span>
-            <span>Lançamentos</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('investments')}
-            className={`flex items-center space-x-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'investments'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <span>📈</span>
-            <span>Investimentos</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('goals')}
-            className={`flex items-center space-x-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'goals'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <span>🎯</span>
-            <span>Metas</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('reports')}
-            className={`flex items-center space-x-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'reports'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <span>📊</span>
-            <span>Relatórios</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('settings')}
-            className={`flex items-center space-x-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'settings'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <span>⚙️</span>
-            <span>Configurações</span>
-          </button>
-        </div>
-      </div>
+            {/* Two-Column Content */}
+            <div className="grid grid-cols-1 gap-6">
+              {/* COLUNA DIREITA: Box: "Adicionar Transação" */}
+              <div className="bg-card rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-semibold mb-4">Adicionar Transação</h3>
+                <TransactionForm
+                  onSave={() => {
+                    setRefreshTrigger(prev => prev + 1);
+                  }}
+                />
+              </div>
+            </div>
 
-      {/* Main Content */}
-      <main className="p-4">
-        {renderTabContent()}
+            {/* SEÇÃO INFERIOR: Lista: "Transações Recentes" */}
+            <div className="bg-card rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold mb-4">Transações Recentes</h3>
+              <TransactionList period={period} refreshTrigger={refreshTrigger} />
+            </div>
+          </>
+        )}
+
+        {activeView === 'goals' && (
+          <div className="bg-card rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Minhas Metas</h3>
+            <GoalList />
+          </div>
+        )}
+
+        {activeView === 'categories' && (
+          <div className="bg-card rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Gerenciar Categorias</h3>
+            <Settings />
+          </div>
+        )}
+
+        {activeView === 'reports' && (
+          <div className="bg-card rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Relatórios e Análises</h3>
+            <Charts period={period} />
+          </div>
+        )}
+
+        {activeView === 'settings' && (
+          <div className="bg-card rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Configurações</h3>
+            <Settings />
+          </div>
+        )}
       </main>
-
-      {/* Modals */}
-      {showTransactionForm && (
-        <TransactionForm
-          onSave={handleTransactionSaved}
-          onCancel={() => setShowTransactionForm(false)}
-        />
-      )}
-      {showInvestmentForm && (
-        <InvestmentForm
-          onSave={handleInvestmentSaved}
-          onCancel={() => setShowInvestmentForm(false)}
-        />
-      )}
-      {showGoalForm && (
-        <GoalForm
-          onSave={handleGoalSaved}
-          onCancel={() => setShowGoalForm(false)}
-        />
-      )}
     </div>
   );
 };

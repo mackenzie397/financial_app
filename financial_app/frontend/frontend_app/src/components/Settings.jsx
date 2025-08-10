@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import api from '../lib/api.js';
+import { Pencil, Trash2 } from 'lucide-react';
+import { Button } from './ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 
 const Settings = () => {
   const { user } = useAuth();
@@ -113,7 +117,6 @@ const Settings = () => {
   };
 
   const handleDelete = async (id, type) => {
-    if (!window.confirm('Tem certeza que deseja excluir este item?')) return;
     
     try {
       if (type === 'category') {
@@ -134,59 +137,70 @@ const Settings = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-foreground">Categorias</h3>
-        <button
-          onClick={() => setShowCategoryForm(true)}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
-        >
-          Nova Categoria
-        </button>
+        <Dialog open={showCategoryForm} onOpenChange={(open) => {
+          setShowCategoryForm(open);
+          if (!open) {
+            setEditingItem(null);
+            setNewCategory({ name: '', category_type: 'expense' });
+          }
+        }}>
+          <DialogTrigger asChild>
+            <Button
+              onClick={() => {
+                setEditingItem(null);
+                setNewCategory({ name: '', category_type: 'expense' });
+              }}
+            >
+              Nova Categoria
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{editingItem ? 'Editar Categoria' : 'Nova Categoria'}</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleAddCategory} className="space-y-3">
+              <div>
+                <input
+                  type="text"
+                  placeholder="Nome da categoria"
+                  value={newCategory.name}
+                  onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
+                />
+              </div>
+              <div>
+                <select
+                  value={newCategory.category_type}
+                  onChange={(e) => setNewCategory({ ...newCategory, category_type: e.target.value })}
+                  className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
+                >
+                  <option value="expense">Despesa</option>
+                  <option value="income">Receita</option>
+                </select>
+              </div>
+              <div className="flex space-x-2">
+                <Button
+                  type="submit"
+                >
+                  {editingItem ? 'Atualizar' : 'Adicionar'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowCategoryForm(false);
+                    setEditingItem(null);
+                    setNewCategory({ name: '', category_type: 'expense' });
+                  }}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      {showCategoryForm && (
-        <div className="bg-card p-4 rounded-lg border">
-          <form onSubmit={handleAddCategory} className="space-y-3">
-            <div>
-              <input
-                type="text"
-                placeholder="Nome da categoria"
-                value={newCategory.name}
-                onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                required
-                className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
-              />
-            </div>
-            <div>
-              <select
-                value={newCategory.category_type}
-                onChange={(e) => setNewCategory({ ...newCategory, category_type: e.target.value })}
-                className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
-              >
-                <option value="expense">Despesa</option>
-                <option value="income">Receita</option>
-              </select>
-            </div>
-            <div className="flex space-x-2">
-              <button
-                type="submit"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md"
-              >
-                {editingItem ? 'Atualizar' : 'Adicionar'}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowCategoryForm(false);
-                  setEditingItem(null);
-                  setNewCategory({ name: '', category_type: 'expense' });
-                }}
-                className="bg-muted hover:bg-muted/90 text-muted-foreground px-4 py-2 rounded-md"
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
 
       <div className="space-y-2">
         {categories.map((category) => (
@@ -202,18 +216,43 @@ const Settings = () => {
               </span>
             </div>
             <div className="space-x-2">
-              <button
-                onClick={() => handleEdit(category, 'category')}
-                className="text-primary hover:text-primary/90 text-sm"
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  handleEdit(category, 'category');
+                  setShowCategoryForm(true);
+                }}
+                title="Editar categoria"
               >
-                Editar
-              </button>
-              <button
-                onClick={() => handleDelete(category.id, 'category')}
-                className="text-destructive hover:text-destructive/90 text-sm"
-              >
-                Excluir
-              </button>
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive/90"
+                    title="Excluir categoria"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta ação não pode ser desfeita. Isso excluirá permanentemente esta categoria.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleDelete(category.id, 'category')}>
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         ))}
@@ -225,67 +264,103 @@ const Settings = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-foreground">Formas de Pagamento</h3>
-        <button
-          onClick={() => setShowPaymentForm(true)}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
-        >
-          Nova Forma de Pagamento
-        </button>
+        <Dialog open={showPaymentForm} onOpenChange={(open) => {
+          setShowPaymentForm(open);
+          if (!open) {
+            setEditingItem(null);
+            setNewPaymentMethod({ name: '' });
+          }
+        }}>
+          <DialogTrigger asChild>
+            <Button
+              onClick={() => {
+                setEditingItem(null);
+                setNewPaymentMethod({ name: '' });
+              }}
+            >
+              Nova Forma de Pagamento
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{editingItem ? 'Editar Forma de Pagamento' : 'Nova Forma de Pagamento'}</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleAddPaymentMethod} className="space-y-3">
+              <div>
+                <input
+                  type="text"
+                  placeholder="Nome da forma de pagamento"
+                  value={newPaymentMethod.name}
+                  onChange={(e) => setNewPaymentMethod({ ...newPaymentMethod, name: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
+                />
+              </div>
+              <div className="flex space-x-2">
+                <Button
+                  type="submit"
+                >
+                  {editingItem ? 'Atualizar' : 'Adicionar'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowPaymentForm(false);
+                    setEditingItem(null);
+                    setNewPaymentMethod({ name: '' });
+                  }}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      {showPaymentForm && (
-        <div className="bg-card p-4 rounded-lg border">
-          <form onSubmit={handleAddPaymentMethod} className="space-y-3">
-            <div>
-              <input
-                type="text"
-                placeholder="Nome da forma de pagamento"
-                value={newPaymentMethod.name}
-                onChange={(e) => setNewPaymentMethod({ ...newPaymentMethod, name: e.target.value })}
-                required
-                className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
-              />
-            </div>
-            <div className="flex space-x-2">
-              <button
-                type="submit"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md"
-              >
-                {editingItem ? 'Atualizar' : 'Adicionar'}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowPaymentForm(false);
-                  setEditingItem(null);
-                  setNewPaymentMethod({ name: '' });
-                }}
-                className="bg-muted hover:bg-muted/90 text-muted-foreground px-4 py-2 rounded-md"
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
 
       <div className="space-y-2">
         {paymentMethods.map((method) => (
           <div key={method.id} className="flex justify-between items-center p-3 bg-card border border-border rounded-lg">
             <span className="font-medium text-foreground">{method.name}</span>
             <div className="space-x-2">
-              <button
-                onClick={() => handleEdit(method, 'payment')}
-                className="text-primary hover:text-primary/90 text-sm"
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  handleEdit(method, 'payment');
+                  setShowPaymentForm(true);
+                }}
+                title="Editar forma de pagamento"
               >
-                Editar
-              </button>
-              <button
-                onClick={() => handleDelete(method.id, 'payment')}
-                className="text-destructive hover:text-destructive/90 text-sm"
-              >
-                Excluir
-              </button>
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive/90"
+                    title="Excluir forma de pagamento"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta ação não pode ser desfeita. Isso excluirá permanentemente esta forma de pagamento.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleDelete(method.id, 'payment')}>
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         ))}
@@ -297,67 +372,103 @@ const Settings = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-foreground">Tipos de Investimento</h3>
-        <button
-          onClick={() => setShowInvestmentForm(true)}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
-        >
-          Novo Tipo de Investimento
-        </button>
+        <Dialog open={showInvestmentForm} onOpenChange={(open) => {
+          setShowInvestmentForm(open);
+          if (!open) {
+            setEditingItem(null);
+            setNewInvestmentType({ name: '' });
+          }
+        }}>
+          <DialogTrigger asChild>
+            <Button
+              onClick={() => {
+                setEditingItem(null);
+                setNewInvestmentType({ name: '' });
+              }}
+            >
+              Novo Tipo de Investimento
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{editingItem ? 'Editar Tipo de Investimento' : 'Novo Tipo de Investimento'}</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleAddInvestmentType} className="space-y-3">
+              <div>
+                <input
+                  type="text"
+                  placeholder="Nome do tipo de investimento"
+                  value={newInvestmentType.name}
+                  onChange={(e) => setNewInvestmentType({ ...newInvestmentType, name: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
+                />
+              </div>
+              <div className="flex space-x-2">
+                <Button
+                  type="submit"
+                >
+                  {editingItem ? 'Atualizar' : 'Adicionar'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowInvestmentForm(false);
+                    setEditingItem(null);
+                    setNewInvestmentType({ name: '' });
+                  }}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      {showInvestmentForm && (
-        <div className="bg-card p-4 rounded-lg border">
-          <form onSubmit={handleAddInvestmentType} className="space-y-3">
-            <div>
-              <input
-                type="text"
-                placeholder="Nome do tipo de investimento"
-                value={newInvestmentType.name}
-                onChange={(e) => setNewInvestmentType({ ...newInvestmentType, name: e.target.value })}
-                required
-                className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
-              />
-            </div>
-            <div className="flex space-x-2">
-              <button
-                type="submit"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md"
-              >
-                {editingItem ? 'Atualizar' : 'Adicionar'}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowInvestmentForm(false);
-                  setEditingItem(null);
-                  setNewInvestmentType({ name: '' });
-                }}
-                className="bg-muted hover:bg-muted/90 text-muted-foreground px-4 py-2 rounded-md"
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
 
       <div className="space-y-2">
         {investmentTypes.map((type) => (
           <div key={type.id} className="flex justify-between items-center p-3 bg-card border border-border rounded-lg">
             <span className="font-medium text-foreground">{type.name}</span>
             <div className="space-x-2">
-              <button
-                onClick={() => handleEdit(type, 'investment')}
-                className="text-primary hover:text-primary/90 text-sm"
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  handleEdit(type, 'investment');
+                  setShowInvestmentForm(true);
+                }}
+                title="Editar tipo de investimento"
               >
-                Editar
-              </button>
-              <button
-                onClick={() => handleDelete(type.id, 'investment')}
-                className="text-destructive hover:text-destructive/90 text-sm"
-              >
-                Excluir
-              </button>
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive/90"
+                    title="Excluir tipo de investimento"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta ação não pode ser desfeita. Isso excluirá permanentemente este tipo de investimento.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleDelete(type.id, 'investment')}>
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         ))}
