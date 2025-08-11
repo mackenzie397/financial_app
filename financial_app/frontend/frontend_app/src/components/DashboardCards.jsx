@@ -101,7 +101,7 @@ const DashboardCards = ({ period }) => {
   return (
       <>
       {cards.map((card, index) => (
-        <div key={index} className="bg-card rounded-lg shadow-md p-10">
+        <div key={index} className="bg-card rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-2xl font-medium text-foreground">{card.title}</h3>
             {card.icon}
