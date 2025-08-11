@@ -4,12 +4,12 @@ name: Backend CI
 
 # Controla quando o workflow será executado
 on:
-  # Executa em pushes para a branch 'main'
+  # Executa em pushes para a branch 'master'
   push:
-    branches: [ "main" ]
-  # Executa em pull requests direcionados à branch 'main'
+    branches: [ "master" ]
+  # Executa em pull requests direcionados à branch 'master'
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   # Define um único job chamado "test-backend"
