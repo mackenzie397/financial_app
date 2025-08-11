@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth.jsx';
-import TransactionList from './TransactionList.jsx';
 import Settings from './Settings.jsx';
-import DashboardCards from './DashboardCards.jsx';
+import Categories from './Categories.jsx';
+import DashboardPage from './DashboardPage.jsx'; // Importar a nova página
 import PeriodSelector from './PeriodSelector.jsx';
-import TransactionForm from './TransactionForm.jsx';
 import InvestmentForm from './InvestmentForm.jsx';
-import GoalForm from './GoalForm.jsx';
+import GoalsPage from './GoalsPage.jsx';
 import Charts from './Charts.jsx';
-import InvestmentList from './InvestmentList.jsx';
-import GoalList from './GoalList.jsx';
 import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider.jsx';
 
@@ -20,7 +17,6 @@ const Dashboard = () => {
     year: new Date().getFullYear(),
     month: new Date().getMonth() + 1
   });
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [activeView, setActiveView] = useState('dashboard');
 
   if (!user) {
@@ -92,47 +88,16 @@ const Dashboard = () => {
       </nav>
 
       <main className="p-4 space-y-6">
-        {activeView === 'dashboard' && (
-          <>
-            {/* Main Cards Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <DashboardCards period={period} />
-            </div>
-
-            {/* Two-Column Content */}
-            <div className="grid grid-cols-1 gap-6">
-              {/* COLUNA DIREITA: Box: "Adicionar Transação" */}
-              <div className="bg-card rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold mb-4">Adicionar Transação</h3>
-                <TransactionForm
-                  onSave={() => {
-                    setRefreshTrigger(prev => prev + 1);
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* SEÇÃO INFERIOR: Lista: "Transações Recentes" */}
-            <div className="bg-card rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold mb-4">Transações Recentes</h3>
-              <TransactionList period={period} refreshTrigger={refreshTrigger} />
-            </div>
-          </>
-        )}
+        {activeView === 'dashboard' && <DashboardPage period={period} />}
 
         {activeView === 'goals' && (
           <div className="bg-card rounded-lg shadow-md p-6">
             <h3 className="text-lg font-semibold mb-4">Minhas Metas</h3>
-            <GoalList />
+            <GoalsPage />
           </div>
         )}
 
-        {activeView === 'categories' && (
-          <div className="bg-card rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold mb-4">Gerenciar Categorias</h3>
-            <Settings />
-          </div>
-        )}
+        {activeView === 'categories' && <Categories />}
 
         {activeView === 'reports' && (
           <div className="bg-card rounded-lg shadow-md p-6">

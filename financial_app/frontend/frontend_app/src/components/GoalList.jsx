@@ -7,7 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import GoalForm from './GoalForm';
 
-const GoalList = ({ onGoalChange }) => {
+const GoalList = ({ onGoalChange, refreshTrigger }) => {
   const { user } = useAuth();
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,7 +66,7 @@ const GoalList = ({ onGoalChange }) => {
 
   useEffect(() => {
     fetchGoals();
-  }, [user]);
+  }, [user, refreshTrigger]);
 
   if (loading) {
     return (

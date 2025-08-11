@@ -22,6 +22,15 @@ def client(app):
     return app.test_client()
 
 @pytest.fixture
+def new_user(app):
+    with app.app_context():
+        user = User(username='testuser_fixture', email='fixture@example.com')
+        user.set_password('Password123!')
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+@pytest.fixture
 def auth_client():
     app = create_app('testing')
     app.config.update(
