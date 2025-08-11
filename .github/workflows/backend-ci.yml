@@ -1,0 +1,45 @@
+# .github/workflows/backend-ci.yml
+
+name: Backend CI
+
+# Controla quando o workflow será executado
+on:
+  # Executa em pushes para a branch 'main'
+  push:
+    branches: [ "main" ]
+  # Executa em pull requests direcionados à branch 'main'
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # Define um único job chamado "test-backend"
+  test-backend:
+    # O tipo de runner que o job vai rodar
+    runs-on: ubuntu-latest
+
+    # Define o diretório de trabalho padrão para os comandos
+    defaults:
+      run:
+        working-directory: ./financial_app/backend/backend_app
+
+    steps:
+      # 1. Clona o seu repositório para o runner
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      # 2. Configura o ambiente Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11' # Usa uma versão do Python compatível
+
+      # 3. Instala as dependências do projeto
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 4. Executa os testes com pytest
+      - name: Run tests
+        run: |
+          pytest
