@@ -5,10 +5,15 @@ import TransactionList from './TransactionList.jsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const DashboardPage = ({ period }) => {
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [currentPeriod, setCurrentPeriod] = useState(period);
+  const [refreshTrigger, setRefreshTrigger] = useState(0); // Define refreshTrigger state
+
+  const handlePeriodChange = (newPeriod) => {
+    setCurrentPeriod(newPeriod);
+  };
 
   const handleTransactionSave = () => {
-    setRefreshTrigger(prev => prev + 1);
+    setRefreshTrigger(prev => prev + 1); // Increment refreshTrigger to force re-render
   };
 
   return (
