@@ -31,19 +31,15 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background text-foreground">
       {/* HEADER */}
       <header className="bg-card p-4 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          {/* Logo/Icone Livro */}
-          <span className="text-2xl">📚</span>
-          <h1 className="text-xl font-bold">Organizador Financeiro</h1>
+        <div className="flex flex-col items-start">
+          <div className="flex items-center space-x-2">
+            {/* Logo/Icone Livro */}
+            <span className="text-2xl">📚</span>
+            <h1 className="text-xl font-bold">Organizador Financeiro</h1>
+          </div>
+          {user && <span className="text-sm text-muted-foreground">Bem vindo, {user.username}!</span>}
         </div>
         <div className="flex items-center space-x-4">
-          {/* Botão Tema */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-full bg-muted hover:bg-muted/90"
-          >
-            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </button>
           <button
             onClick={logout}
             className="bg-destructive hover:bg-destructive/90 text-destructive-foreground px-4 py-2 rounded-md font-medium transition-colors"
@@ -87,8 +83,13 @@ const Dashboard = () => {
         </button>
       </nav>
 
-      <main className="p-4 space-y-6">
-        {activeView === 'dashboard' && <DashboardPage period={period} />}
+      <main className="container mx-auto py-6 space-y-6">
+        {activeView === 'dashboard' && (
+          <div className="bg-card rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Visão Geral do Dashboard</h3>
+            <DashboardPage period={period} />
+          </div>
+        )}
 
         {activeView === 'goals' && (
           <div className="bg-card rounded-lg shadow-md p-6">
@@ -97,7 +98,12 @@ const Dashboard = () => {
           </div>
         )}
 
-        {activeView === 'categories' && <Categories />}
+        {activeView === 'categories' && (
+          <div className="bg-card rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Gerenciar Categorias</h3>
+            <Categories />
+          </div>
+        )}
 
         {activeView === 'reports' && (
           <div className="bg-card rounded-lg shadow-md p-6">
