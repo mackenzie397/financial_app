@@ -116,13 +116,14 @@ def test_get_transaction_other_user(auth_client, client):
         'email': 'test2@example.com',
         'password': 'Password123!'
     })
-    client.post('/api/login', json={
+    login_response = client.post('/api/login', json={
         'username': 'testuser2',
         'password': 'Password123!'
     })
+    token = login_response.json['access_token']
 
     # User 2 tries to access User 1's transaction
-    response = client.get(f'/api/transactions/{transaction["id"]}')
+    response = client.get(f'/api/transactions/{transaction["id"]}', headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 def test_update_transaction_other_user(auth_client, client):
@@ -144,13 +145,14 @@ def test_update_transaction_other_user(auth_client, client):
         'email': 'test2@example.com',
         'password': 'Password123!'
     })
-    client.post('/api/login', json={
+    login_response = client.post('/api/login', json={
         'username': 'testuser2',
         'password': 'Password123!'
     })
+    token = login_response.json['access_token']
 
     # User 2 tries to update User 1's transaction
-    response = client.put(f'/api/transactions/{transaction["id"]}', json={'description': 'Updated by Other User'})
+    response = client.put(f'/api/transactions/{transaction["id"]}', json={'description': 'Updated by Other User'}, headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 def test_delete_transaction_other_user(auth_client, client):
@@ -172,11 +174,12 @@ def test_delete_transaction_other_user(auth_client, client):
         'email': 'test2@example.com',
         'password': 'Password123!'
     })
-    client.post('/api/login', json={
+    login_response = client.post('/api/login', json={
         'username': 'testuser2',
         'password': 'Password123!'
     })
+    token = login_response.json['access_token']
 
     # User 2 tries to delete User 1's transaction
-    response = client.delete(f'/api/transactions/{transaction["id"]}')
+    response = client.delete(f'/api/transactions/{transaction["id"]}', headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND

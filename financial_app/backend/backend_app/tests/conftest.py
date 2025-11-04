@@ -38,87 +38,85 @@ def new_user(app):
         return user
 
 @pytest.fixture
-def auth_client(client, app):
+def auth_client(app):
+    client = app.test_client()
     with app.app_context():
         user = User(username='testuser', email='test@example.com')
         user.set_password('Password123!')
         db.session.add(user)
         db.session.commit()
 
-        client.post('/api/login', json={
+        response = client.post('/api/login', json={
             'username': 'testuser',
             'password': 'Password123!'
         })
 
+        token = response.json['access_token']
+        client.environ_base['HTTP_AUTHORIZATION'] = f'Bearer {token}'
+
         yield client, user
 
 @pytest.fixture
-def new_category(auth_client, app):
+def new_category(auth_client):
     client, user = auth_client
-    with app.app_context():
-        category = Category(name='Test Category', category_type='expense', user_id=user.id)
-        db.session.add(category)
-        db.session.commit()
-        return category
+    category = Category(name='Test Category', category_type='expense', user_id=user.id)
+    db.session.add(category)
+    db.session.commit()
+    return category
 
 @pytest.fixture
-def new_payment_method(auth_client, app):
+def new_payment_method(auth_client):
     client, user = auth_client
-    with app.app_context():
-        payment_method = PaymentMethod(name='Test Payment Method', user_id=user.id)
-        db.session.add(payment_method)
-        db.session.commit()
-        return payment_method
+    payment_method = PaymentMethod(name='Test Payment Method', user_id=user.id)
+    db.session.add(payment_method)
+    db.session.commit()
+    return payment_method
 
 @pytest.fixture
-def new_transaction(auth_client, app, new_category, new_payment_method):
+def new_transaction(auth_client, new_category, new_payment_method):
     client, user = auth_client
-    with app.app_context():
-        transaction = Transaction(
-            description='Test Transaction',
-            amount=100.0,
-            date=date.today(),
-            transaction_type='expense',
-            category_id=new_category.id,
-            payment_method_id=new_payment_method.id,
-            user_id=user.id
-        )
-        db.session.add(transaction)
-        db.session.commit()
-        return transaction
+    transaction = Transaction(
+        description='Test Transaction',
+        amount=100.0,
+        date=date.today(),
+        transaction_type='expense',
+        category_id=new_category.id,
+        payment_method_id=new_payment_method.id,
+        user_id=user.id
+    )
+    db.session.add(transaction)
+    db.session.commit()
+    return transaction
 
 @pytest.fixture
-def new_goal(auth_client, app):
+def new_goal(auth_client):
     client, user = auth_client
-    with app.app_context():
-        goal = Goal(
-            name='Test Goal',
-            target_amount=1000.0,
-            user_id=user.id
-        )
-        db.session.add(goal)
-        db.session.commit()
-        return goal
+    goal = Goal(
+        name='Test Goal',
+        target_amount=1000.0,
+        user_id=user.id
+    )
+    db.session.add(goal)
+    db.session.commit()
+    return goal
 
 @pytest.fixture
-def new_investment_type(auth_client, app):
+def new_investment_type(auth_client):
     client, user = auth_client
-    with app.app_context():
-        investment_type = InvestmentType(name='Test Investment Type', user_id=user.id)
-        db.session.add(investment_type)
-        db.session.commit()
-        return investment_type
+    investment_type = InvestmentType(name='Test Investment Type', user_id=user.id)
+    db.session.add(investment_type)
+    db.session.commit()
+    return investment_type
 
 @pytest.fixture
-def new_investment(auth_client, app, new_investment_type):
+def new_investment(auth_client, new_investment_type):
     client, user = auth_client
-    with app.app_context():
-        investment = Investment(
-            name='Test Investment',
-            amount=1000.0,
-            investment_type_id=new_investment_type.id,
-            user_id=user.id
-        )
-        db.session.add(investment)
-        db.session.commit()
-        return investment
+    investment = Investment(
+        name='Test Investment',
+        amount=1000.0,
+        investment_type_id=new_investment_type.id,
+        user_id=user.id
+    )
+    db.session.add(investment)
+    db.session.commit()
+    return investment

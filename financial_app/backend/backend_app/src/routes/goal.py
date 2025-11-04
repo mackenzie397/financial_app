@@ -15,7 +15,9 @@ def add_goal():
 
     name = bleach.clean(data.get("name"))
     target_amount = data.get("target_amount")
-    description = bleach.clean(data.get("description"))
+    description = data.get("description")
+    if description:
+        description = bleach.clean(description)
     current_amount = data.get("current_amount", 0)
     target_date_str = data.get("target_date")
     status = data.get("status", "active")

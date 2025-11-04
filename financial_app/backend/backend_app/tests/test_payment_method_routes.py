@@ -80,13 +80,14 @@ def test_get_payment_method_other_user(auth_client, client):
         'email': 'test2@example.com',
         'password': 'Password123!'
     })
-    client.post('/api/login', json={
+    login_response = client.post('/api/login', json={
         'username': 'testuser2',
         'password': 'Password123!'
     })
+    token = login_response.json['access_token']
 
     # User 2 tries to access User 1's payment method
-    response = client.get(f'/api/payment-methods/{payment_method_id}')
+    response = client.get(f'/api/payment-methods/{payment_method_id}', headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 def test_update_payment_method_other_user(auth_client, client):
@@ -101,13 +102,14 @@ def test_update_payment_method_other_user(auth_client, client):
         'email': 'test2@example.com',
         'password': 'Password123!'
     })
-    client.post('/api/login', json={
+    login_response = client.post('/api/login', json={
         'username': 'testuser2',
         'password': 'Password123!'
     })
+    token = login_response.json['access_token']
 
     # User 2 tries to update User 1's payment method
-    response = client.put(f'/api/payment-methods/{payment_method_id}', json={'name': 'UpdatedPaymentMethod'})
+    response = client.put(f'/api/payment-methods/{payment_method_id}', json={'name': 'UpdatedPaymentMethod'}, headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND
 
 def test_delete_payment_method_other_user(auth_client, client):
@@ -122,11 +124,12 @@ def test_delete_payment_method_other_user(auth_client, client):
         'email': 'test2@example.com',
         'password': 'Password123!'
     })
-    client.post('/api/login', json={
+    login_response = client.post('/api/login', json={
         'username': 'testuser2',
         'password': 'Password123!'
     })
+    token = login_response.json['access_token']
 
     # User 2 tries to delete User 1's payment method
-    response = client.delete(f'/api/payment-methods/{payment_method_id}')
+    response = client.delete(f'/api/payment-methods/{payment_method_id}', headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND
