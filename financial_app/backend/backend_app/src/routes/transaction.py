@@ -5,6 +5,7 @@ from src.models.category import Category
 from src.models.payment_method import PaymentMethod
 from datetime import datetime, timezone
 from flask_jwt_extended import jwt_required, get_jwt_identity
+import bleach
 
 transaction_bp = Blueprint("transaction_bp", __name__)
 
@@ -14,13 +15,13 @@ def add_transaction():
     user_id = get_jwt_identity()
     data = request.get_json()
 
-    description = data.get("description")
+    description = bleach.clean(data.get("description"))
     amount = data.get("amount")
     date_str = data.get("date")
     transaction_type = data.get("transaction_type")
     category_id = data.get("category_id")
     payment_method_id = data.get("payment_method_id")
-    notes = data.get("notes", "")
+    notes = bleach.clean(data.get("notes", ""))
 
     if not description:
         return jsonify({"message": "Description is required"}), 400
@@ -128,7 +129,7 @@ def update_transaction(id):
     notes = data.get("notes")
 
     if description is not None:
-        transaction.description = description
+        transaction.description = bleach.clean(description)
 
     if amount is not None:
         try:
@@ -171,7 +172,7 @@ def update_transaction(id):
             return jsonify({"message": "Payment method ID must be a valid integer"}), 400
 
     if notes is not None:
-        transaction.notes = notes
+        transaction.notes = bleach.clean(notes)
     
     db.session.commit()
     return jsonify(transaction.to_dict())

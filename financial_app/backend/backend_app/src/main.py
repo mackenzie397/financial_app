@@ -14,8 +14,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 load_dotenv()
 
 from src.config import config
-from src.extensions import jwt
+from src.extensions import jwt, limiter
 from src.models.user import db
+from src.middleware import set_csp_header
+from src.logging_config import setup_logging
 from src.models.category import Category
 from src.models.payment_method import PaymentMethod
 from src.models.investment_type import InvestmentType
@@ -26,19 +28,10 @@ def create_app(config_name='default'):
 
     db.init_app(app)
     jwt.init_app(app)
+    limiter.init_app(app)
     CORS(app, origins=app.config['CORS_ORIGINS'])
 
-    # Configurar logging para arquivo
-    if not app.debug and not app.testing:
-        if not os.path.exists('logs'):
-            os.mkdir('logs')
-        file_handler = RotatingFileHandler('logs/app.log', maxBytes=10240, backupCount=10)
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
-        file_handler.setLevel(logging.INFO)
-        app.logger.addHandler(file_handler)
-        app.logger.setLevel(logging.INFO)
-        app.logger.info('Financial App startup')
+    setup_logging(app)
 
     # Importar e registrar blueprints
     from src.routes.user import user_bp
@@ -58,6 +51,10 @@ def create_app(config_name='default'):
     
     app.register_blueprint(investment_bp, url_prefix='/api')
     app.register_blueprint(goal_bp, url_prefix='/api')
+
+    @app.after_request
+    def after_request_func(response):
+        return set_csp_header(response)
 
     # Manipuladores de erro globais
     @app.errorhandler(HTTPException)

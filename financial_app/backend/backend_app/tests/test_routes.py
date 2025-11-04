@@ -103,10 +103,9 @@ def test_login_with_valid_credentials(app, client):
         'password': 'Password123!'
     }
     response = client.post('/api/login', json=login_data)
-    response_json = response.json
 
     assert response.status_code == 200
-    assert response_json['access_token'] is not None
+    assert 'access_token_cookie' in [cookie.name for cookie in client.cookie_jar]
 
 def test_login_with_invalid_password(app, client):
     """
@@ -165,10 +164,9 @@ def test_access_protected_route_with_token(app, client):
         'username': 'testuser',
         'password': 'Password123!'
     }
-    login_response = client.post('/api/login', json=login_data)
-    token = login_response.json['access_token']
+    client.post('/api/login', json=login_data)
 
-    protected_response = client.get('/api/protected', headers={'Authorization': f'Bearer {token}'})
+    protected_response = client.get('/api/protected')
     protected_json = protected_response.json
 
     assert protected_response.status_code == 200
