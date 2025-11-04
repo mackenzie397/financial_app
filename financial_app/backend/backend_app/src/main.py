@@ -130,10 +130,3 @@ def seed_initial_data(app):
             db.session.bulk_save_objects(investment_types)
             db.session.commit()
 
-
-if __name__ == '__main__':
-    app = create_app()
-    with app.app_context():
-        db.create_all()
-        seed_initial_data(app) # Chamada para a função de seeding
-    app.run(host='0.0.0.0', port=5001, debug=True)

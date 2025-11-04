@@ -20,8 +20,14 @@ class TestingConfig(Config):
     JWT_SECRET_KEY = 'test-secret-key'
     JWT_TOKEN_LOCATION = ['headers']
 
+class ProductionConfig(Config):
+    DEBUG = False
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+
+
 config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
+    'production': ProductionConfig,
     'default': DevelopmentConfig
 }
