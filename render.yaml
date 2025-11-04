@@ -12,10 +12,7 @@ services:
     staticPublishPath: "financial_app/frontend/frontend_app/dist"
     envVars:
       - key: VITE_API_BASE_URL
-        fromService:
-          type: web
-          name: backend
-          property: url
+        value: https://backend.onrender.com/api
 
   - type: web
     name: backend
@@ -34,7 +31,4 @@ services:
       - key: FLASK_CONFIG
         value: production
       - key: CORS_ORIGINS
-        fromService:
-          type: web
-          name: frontend
-          property: url
+        value: https://frontend.onrender.com
