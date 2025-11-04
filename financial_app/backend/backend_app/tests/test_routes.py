@@ -20,7 +20,7 @@ def test_login_with_valid_credentials(client):
         'password': 'Password123!'
     })
     assert response.status_code == HTTPStatus.OK
-    assert 'user_id' in response.json
+    assert 'access_token' in response.json
 
 def test_access_protected_route_with_token(auth_client):
     client, user = auth_client

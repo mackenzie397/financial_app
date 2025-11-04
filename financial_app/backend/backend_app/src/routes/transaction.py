@@ -15,7 +15,9 @@ def add_transaction():
     user_id = get_jwt_identity()
     data = request.get_json()
 
-    description = bleach.clean(data.get("description"))
+    description = data.get("description")
+    if description:
+        description = bleach.clean(description)
     amount = data.get("amount")
     date_str = data.get("date")
     transaction_type = data.get("transaction_type")
@@ -31,11 +33,6 @@ def add_transaction():
         return jsonify({"message": "Transaction type is required"}), 400
     if category_id is None:
         return jsonify({"message": "Category ID is required"}), 400
-    if transaction_type == 'income':
-        payment_method_id = None
-    elif payment_method_id is None:
-        return jsonify({"message": "Payment method ID is required for expense transactions"}), 400
-
     try:
         amount = float(amount)
         if amount <= 0:
@@ -52,6 +49,11 @@ def add_transaction():
             date = datetime.strptime(date_str, "%Y-%m-%d").date()
         except ValueError:
             return jsonify({"message": "Invalid date format. Use YYYY-MM-DD"}), 400
+
+    if transaction_type == 'income':
+        payment_method_id = None
+    elif payment_method_id is None:
+        return jsonify({"message": "Payment method ID is required for expense transactions"}), 400
 
     # Validate category_id exists and belongs to user
     category = Category.query.filter_by(id=category_id, user_id=user_id).first()

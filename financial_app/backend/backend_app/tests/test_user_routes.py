@@ -20,7 +20,7 @@ def test_login_successfully(client):
         'password': 'Password123!'
     })
     assert response.status_code == HTTPStatus.OK
-    assert 'user_id' in response.json
+    assert 'access_token' in response.json
 
 def test_get_current_user_data(auth_client):
     client, user = auth_client

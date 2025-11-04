@@ -14,6 +14,11 @@ class Investment(db.Model):
     investment_type = db.relationship('InvestmentType', backref=db.backref('investments', lazy=True))
     user = db.relationship('User', backref=db.backref('investments', lazy=True))
 
+    def __init__(self, **kwargs):
+        super(Investment, self).__init__(**kwargs)
+        if self.current_value is None:
+            self.current_value = self.amount
+
     def __repr__(self):
         return f'<Investment {self.name}>'
 
