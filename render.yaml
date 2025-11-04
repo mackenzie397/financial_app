@@ -5,8 +5,9 @@ databases:
     plan: free
 
 services:
-  - type: static_site
+  - type: web
     name: frontend
+    runtime: static
     buildCommand: "cd financial_app/frontend/frontend_app && pnpm install && pnpm build"
     staticPublishPath: "financial_app/frontend/frontend_app/dist"
     envVars:
@@ -34,6 +35,6 @@ services:
         value: production
       - key: CORS_ORIGINS
         fromService:
-          type: static_site
+          type: web
           name: frontend
           property: url
