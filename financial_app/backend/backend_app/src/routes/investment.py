@@ -4,6 +4,7 @@ from src.models.investment import Investment
 from src.models.investment_type import InvestmentType
 from datetime import datetime, timezone
 from flask_jwt_extended import jwt_required, get_jwt_identity
+import bleach
 
 investment_bp = Blueprint("investment_bp", __name__)
 
@@ -13,7 +14,7 @@ def add_investment():
     user_id = get_jwt_identity()
     data = request.get_json()
 
-    name = data.get("name")
+    name = bleach.clean(data.get("name"))
     amount = data.get("amount")
     date_str = data.get("date")
     current_value = data.get("current_value")
@@ -124,7 +125,7 @@ def update_investment(id):
     investment_type_id = data.get("investment_type_id")
 
     if name is not None:
-        investment.name = name
+        investment.name = bleach.clean(name)
 
     if amount is not None:
         try:

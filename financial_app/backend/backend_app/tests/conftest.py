@@ -50,14 +50,11 @@ def auth_client():
             'password': 'Password123!'
         }), content_type='application/json')
 
-        # Login the user to get a token
-        login_response = client.post('/api/login', data=json.dumps({
+        # Login the user
+        client.post('/api/login', data=json.dumps({
             'username': 'testuser',
             'password': 'Password123!'
         }), content_type='application/json')
-        token = login_response.get_json()['access_token']
 
-        # Return a client with the Authorization header
-        client.environ_base['HTTP_AUTHORIZATION'] = f'Bearer {token}'
         yield client
         db.drop_all()

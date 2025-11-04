@@ -1,16 +1,18 @@
 from flask import Blueprint, request, jsonify
 from src.models.user import db, User
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from src.extensions import jwt
+from src.extensions import jwt, limiter
 import re
+import bleach
 
 user_bp = Blueprint("user_bp", __name__)
 
 @user_bp.route("/register", methods=["POST"])
+@limiter.limit("10 per minute")
 def register():
     data = request.get_json()
-    username = data.get("username")
-    email = data.get("email")
+    username = bleach.clean(data.get("username"))
+    email = bleach.clean(data.get("email"))
     password = data.get("password")
 
     if not username or not email or not password:
@@ -46,6 +48,7 @@ def register():
     return jsonify({"message": "User registered successfully"}), 201
 
 @user_bp.route("/login", methods=["POST"])
+@limiter.limit("10 per minute")
 def login():
     data = request.get_json()
     username = data.get("username")
@@ -55,7 +58,7 @@ def login():
 
     if user and user.check_password(password):
         access_token = create_access_token(identity=str(user.id))
-        return jsonify(access_token=access_token, user_id=user.id), 200
+        return jsonify(user_id=user.id), 200
     else:
         return jsonify({"message": "Invalid credentials"}), 401
 

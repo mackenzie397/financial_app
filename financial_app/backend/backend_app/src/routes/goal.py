@@ -3,6 +3,7 @@ from src.models.user import db
 from src.models.goal import Goal
 from datetime import datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity
+import bleach
 
 goal_bp = Blueprint("goal_bp", __name__)
 
@@ -12,9 +13,9 @@ def add_goal():
     user_id = get_jwt_identity()
     data = request.get_json()
 
-    name = data.get("name")
+    name = bleach.clean(data.get("name"))
     target_amount = data.get("target_amount")
-    description = data.get("description")
+    description = bleach.clean(data.get("description"))
     current_amount = data.get("current_amount", 0)
     target_date_str = data.get("target_date")
     status = data.get("status", "active")
@@ -97,9 +98,9 @@ def update_goal(id):
     status = data.get("status")
 
     if name is not None:
-        goal.name = name
+        goal.name = bleach.clean(name)
     if data.get("description") is not None:
-        goal.description = data.get("description")
+        goal.description = bleach.clean(data.get("description"))
 
     if target_amount is not None:
         try:

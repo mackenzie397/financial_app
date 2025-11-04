@@ -4,8 +4,11 @@ import os
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
+    JWT_TOKEN_LOCATION = ['cookies']
+    JWT_COOKIE_SECURE = True
+    JWT_COOKIE_CSRF_PROTECT = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    CORS_ORIGINS = os.environ.get('CORS_ORIGINS') or '*'
+    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000')
 
 class DevelopmentConfig(Config):
     DEBUG = True
