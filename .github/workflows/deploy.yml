@@ -1,0 +1,19 @@
+name: Deploy to PythonAnywhere via SSH
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute deployment script on PythonAnywhere
+        uses: appleboy/ssh-action@master
+        with:
+          host: ssh.pythonanywhere.com
+          username: "Mackenzie"
+          password: ${{ secrets.PA_PASSWORD }}
+          script: |
+            /home/Mackenzie/deploy.sh
