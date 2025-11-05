@@ -12,9 +12,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Deploy to PythonAnywhere
+      - name: Deploy and Install Dependencies
         uses: pythonanywhere/deploy-action@v1
         with:
           username: "Mackenzie"
           api_token: ${{ secrets.PA_API_TOKEN }}
           path: "~/financial_app"
+          run: |
+            source ~/venv/bin/activate
+            cd ~/financial_app
+            git reset --hard origin/master  # Garante que está na versão mais recente
+            pip install -r financial_app/backend/backend_app/requirements.txt
+            echo "Deploy finalizado!"
