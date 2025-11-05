@@ -8,8 +8,6 @@ from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 from dotenv import load_dotenv
 import re
-import secrets
-import string
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -94,34 +92,25 @@ def create_app(config_name='default'):
 
 def seed_initial_data(app):
     with app.app_context():
-        target_user = User.query.first()
+        # Verifica se o usuário padrão já existe
+        target_user = User.query.filter_by(username='default_user').first()
 
+        # Se não existir, cria o usuário padrão
         if not target_user:
-            app.logger.info("No users found. Creating a default user...")
-
-            alphabet = string.ascii_letters + string.digits
-            password = ''.join(secrets.choice(alphabet) for i in range(12))
-
-            hashed_password = generate_password_hash(password)
+            print("Creating default user...")
+            hashed_password = generate_password_hash('default_password')
             default_user = User(username='default_user', password_hash=hashed_password)
             db.session.add(default_user)
             db.session.commit()
-
             target_user = default_user
-
-            print("===================================================================")
-            print("USUÁRIO PADRÃO CRIADO:")
-            print(f"Username: {target_user.username}")
-            print(f"Password: {password}")
-            print("Anote esta senha. Ela não será exibida novamente.")
-            print("===================================================================")
+            print("Default user created successfully.")
 
         user_id_for_seeding = target_user.id
-        app.logger.info(f"Seeding data for user_id: {user_id_for_seeding}")
+        print(f"Seeding data for user_id: {user_id_for_seeding}")
 
         # Seed Categories
         if Category.query.filter_by(user_id=user_id_for_seeding).count() == 0:
-            app.logger.info("Seeding initial categories...")
+            print("Seeding initial categories...")
             categories = [
                 Category(user_id=user_id_for_seeding, name='Alimentação', category_type='expense'),
                 Category(user_id=user_id_for_seeding, name='Transporte', category_type='expense'),
@@ -130,10 +119,11 @@ def seed_initial_data(app):
             ]
             db.session.bulk_save_objects(categories)
             db.session.commit()
+            print("Categories seeded.")
 
         # Seed Payment Methods
         if PaymentMethod.query.filter_by(user_id=user_id_for_seeding).count() == 0:
-            app.logger.info("Seeding initial payment methods...")
+            print("Seeding initial payment methods...")
             payment_methods = [
                 PaymentMethod(user_id=user_id_for_seeding, name='Dinheiro'),
                 PaymentMethod(user_id=user_id_for_seeding, name='Cartão de Débito'),
@@ -141,10 +131,11 @@ def seed_initial_data(app):
             ]
             db.session.bulk_save_objects(payment_methods)
             db.session.commit()
+            print("Payment methods seeded.")
 
         # Seed Investment Types
         if InvestmentType.query.filter_by(user_id=user_id_for_seeding).count() == 0:
-            app.logger.info("Seeding initial investment types...")
+            print("Seeding initial investment types...")
             investment_types = [
                 InvestmentType(user_id=user_id_for_seeding, name='Renda Fixa'),
                 InvestmentType(user_id=user_id_for_seeding, name='Ações'),
@@ -152,5 +143,12 @@ def seed_initial_data(app):
             ]
             db.session.bulk_save_objects(investment_types)
             db.session.commit()
+            print("Investment types seeded.")
 
+        print("===================================================================")
         print("Database seeding completed successfully.")
+        print("You can now log in with the following credentials:")
+        print("Username: default_user")
+        print("Password: default_password")
+        print("It is highly recommended to change this password after your first login.")
+        print("===================================================================")
