@@ -21,6 +21,7 @@ jobs:
           run: |
             source ~/venv/bin/activate
             cd ~/financial_app
-            git reset --hard origin/master  # Garante que está na versão mais recente
+            git fetch --all # Busca todas as atualizações
+            git reset --hard origin/master # Força o código a ser igual ao do GitHub
             pip install -r financial_app/backend/backend_app/requirements.txt
             echo "Deploy finalizado!"
