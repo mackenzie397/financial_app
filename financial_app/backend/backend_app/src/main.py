@@ -3,10 +3,13 @@ import sys
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask, send_from_directory, jsonify
+from werkzeug.security import generate_password_hash
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 from dotenv import load_dotenv
 import re
+import secrets
+import string
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -15,7 +18,7 @@ load_dotenv()
 
 from src.config import config
 from src.extensions import jwt, limiter
-from src.models.user import db
+from src.models.user import db, User
 from src.middleware import set_csp_header
 from src.logging_config import setup_logging
 from src.models.category import Category
@@ -91,13 +94,32 @@ def create_app(config_name='default'):
 
 def seed_initial_data(app):
     with app.app_context():
-        # Assumimos que o user_id 1 é o usuário padrão para o seeding
-        # Em um ambiente de produção, isso precisaria ser mais robusto
-        # (ex: criar um usuário admin padrão ou associar ao primeiro usuário)
-        user_id_for_seeding = 1 
+        user_id_for_seeding = 1
+
+        # Cria um usuário padrão se nenhum existir
+        if User.query.count() == 0:
+            app.logger.info("No users found. Creating a default user...")
+
+            # Gera uma senha segura
+            alphabet = string.ascii_letters + string.digits
+            password = ''.join(secrets.choice(alphabet) for i in range(12))
+
+            hashed_password = generate_password_hash(password)
+            default_user = User(username='default_user', password_hash=hashed_password)
+            db.session.add(default_user)
+            db.session.commit()
+
+            user_id_for_seeding = default_user.id
+
+            print("===================================================================")
+            print("USUÁRIO PADRÃO CRIADO:")
+            print(f"Username: {default_user.username}")
+            print(f"Password: {password}")
+            print("Anote esta senha. Ela não será exibida novamente.")
+            print("===================================================================")
 
         # Seed Categories
-        if Category.query.count() == 0:
+        if Category.query.filter_by(user_id=user_id_for_seeding).count() == 0:
             app.logger.info("Seeding initial categories...")
             categories = [
                 Category(user_id=user_id_for_seeding, name='Alimentação', category_type='expense'),
@@ -109,7 +131,7 @@ def seed_initial_data(app):
             db.session.commit()
 
         # Seed Payment Methods
-        if PaymentMethod.query.count() == 0:
+        if PaymentMethod.query.filter_by(user_id=user_id_for_seeding).count() == 0:
             app.logger.info("Seeding initial payment methods...")
             payment_methods = [
                 PaymentMethod(user_id=user_id_for_seeding, name='Dinheiro'),
@@ -120,7 +142,7 @@ def seed_initial_data(app):
             db.session.commit()
 
         # Seed Investment Types
-        if InvestmentType.query.count() == 0:
+        if InvestmentType.query.filter_by(user_id=user_id_for_seeding).count() == 0:
             app.logger.info("Seeding initial investment types...")
             investment_types = [
                 InvestmentType(user_id=user_id_for_seeding, name='Renda Fixa'),
@@ -129,4 +151,3 @@ def seed_initial_data(app):
             ]
             db.session.bulk_save_objects(investment_types)
             db.session.commit()
-
