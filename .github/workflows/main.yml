@@ -9,19 +9,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Deploy and Install Dependencies
-        uses: pythonanywhere/deploy-action@v1
+      - name: Deploy to PythonAnywhere
+        uses: umuttopalak/pythonanywhere-deploy-action@v1
         with:
-          username: "Mackenzie"
-          api_token: ${{ secrets.PA_API_TOKEN }}
-          path: "~/financial_app"
-          run: |
-            source ~/venv/bin/activate
-            cd ~/financial_app
-            git fetch --all # Busca todas as atualizações
-            git reset --hard origin/master # Força o código a ser igual ao do GitHub
-            pip install -r financial_app/backend/backend_app/requirements.txt
-            echo "Deploy finalizado!"
+          pythonanywhere_username: "Mackenzie"
+          pythonanywhere_api_token: ${{ secrets.PA_API_TOKEN }}
+          pythonanywhere_script_path: "/home/Mackenzie/deploy.sh"
