@@ -1,3 +1,5 @@
+name: Deploy to PythonAnywhere via SSH (Manual Debug)
+
 on:
   push:
     branches:
@@ -7,14 +9,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Execute simple test on PythonAnywhere
-        uses: appleboy/ssh-action@master
-        with:
-          host: ssh.pythonanywhere.com
-          username: "Mackenzie"
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          debug: true # Adicionado para logs detalhados
-          script: |
-            echo "Tentando conectar..."
-            echo "Testando a conexão..."
-            pwd
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/pythonanywhere_key
+          chmod 600 ~/.ssh/pythonanywhere_key
+      
+      - name: Connect with SSH and Debug
+        run: |
+          ssh -i ~/.ssh/pythonanywhere_key -o StrictHostKeyChecking=no -vvv Mackenzie@ssh.pythonanywhere.com "echo 'Conexão bem-sucedida!'"
