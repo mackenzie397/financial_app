@@ -1,4 +1,4 @@
-name: Deploy to PythonAnywhere via SSH
+name: Deploy to PythonAnywhere via SSH (Final Test)
 
 on:
   push:
@@ -15,6 +15,6 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/pythonanywhere_key
           chmod 600 ~/.ssh/pythonanywhere_key
       
-      - name: Execute deployment script on PythonAnywhere
+      - name: Execute Simple Command Test on PythonAnywhere
         run: |
-          ssh -i ~/.ssh/pythonanywhere_key -o StrictHostKeyChecking=no -tt Mackenzie@ssh.pythonanywhere.com "/home/Mackenzie/deploy.sh"
+          ssh -i ~/.ssh/pythonanywhere_key -o StrictHostKeyChecking=no -tt Mackenzie@ssh.pythonanywhere.com "echo '--- Teste de conexão bem-sucedido ---' && echo '--- Diretório atual: ---' && pwd"
