@@ -1,3 +1,19 @@
-script: |
-  echo "Conexão SSH bem-sucedida!"
-  pwd
+name: Deploy to PythonAnywhere via SSH (Test)
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute simple test on PythonAnywhere
+        uses: appleboy/ssh-action@master
+        with:
+          host: ssh.pythonanywhere.com
+          username: "Mackenzie"
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "Conexão SSH bem-sucedida!"
