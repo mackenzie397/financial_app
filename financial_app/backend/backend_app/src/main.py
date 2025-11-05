@@ -92,21 +92,24 @@ def create_app(config_name='default'):
 
 def seed_initial_data(app):
     with app.app_context():
-        # Verifica se o usuário padrão já existe
-        target_user = User.query.filter_by(username='default_user').first()
+        # Tenta encontrar o primeiro usuário no banco de dados
+        target_user = User.query.first()
 
-        # Se não existir, cria o usuário padrão
+        # Se nenhum usuário existir, cria um usuário padrão
         if not target_user:
-            print("Creating default user...")
-            hashed_password = generate_password_hash('default_password')
-            default_user = User(username='default_user', password_hash=hashed_password)
+            print("No users found. Creating a default user.")
+            password = 'default_password'  # Idealmente, use uma senha mais segura ou gerada aleatoriamente
+            hashed_password = generate_password_hash(password)
+            default_user = User(username='default_user', email='default@example.com', password_hash=hashed_password)
             db.session.add(default_user)
-            db.session.commit()
+            db.session.commit()  # Salva o usuário no banco de dados imediatamente
             target_user = default_user
-            print("Default user created successfully.")
+            print(f"Default user '{target_user.username}' created successfully with ID: {target_user.id}")
+            print(f"Login with username: {target_user.username} and password: {password}")
+        else:
+            print(f"Using existing user '{target_user.username}' with ID: {target_user.id} for seeding.")
 
         user_id_for_seeding = target_user.id
-        print(f"Seeding data for user_id: {user_id_for_seeding}")
 
         # Seed Categories
         if Category.query.filter_by(user_id=user_id_for_seeding).count() == 0:
