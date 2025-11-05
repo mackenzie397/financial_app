@@ -2,7 +2,7 @@ import os
 import sys
 import logging
 from logging.handlers import RotatingFileHandler
-from flask import Flask, send_from_directory, jsonify
+from flask import Flask, send_from_directory, jsonify, request
 from werkzeug.security import generate_password_hash
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
@@ -70,6 +70,31 @@ def create_app(config_name='default'):
         # log the exception with traceback
         app.logger.error(f"Unhandled exception: {e}", exc_info=True)
         return jsonify({"message": "An unexpected error occurred."}), 500
+
+    @app.route('/webhook-deploy', methods=['POST'])
+    def webhook_deploy():
+        import subprocess
+        import hmac
+        import hashlib
+
+        # Verify the webhook signature
+        secret = os.environ.get('WEBHOOK_SECRET', '').encode()
+        signature = request.headers.get('X-Hub-Signature-256')
+
+        if not signature or not signature.startswith('sha256='):
+            return jsonify({'message': 'Invalid signature format'}), 403
+
+        expected_signature = 'sha256=' + hmac.new(secret, request.data, hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(signature, expected_signature):
+            return jsonify({'message': 'Invalid signature'}), 403
+
+        # Run the deployment script
+        try:
+            subprocess.Popen(['/home/Mackenzie/deploy.sh'])
+            return jsonify({'message': 'Deployment started'}), 202
+        except Exception as e:
+            app.logger.error(f"Deployment script failed: {e}")
+            return jsonify({'message': 'Deployment script failed'}), 500
 
     # Rota para servir o frontend
     @app.route('/', defaults={'path': ''})
