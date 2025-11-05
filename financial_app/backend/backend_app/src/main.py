@@ -94,13 +94,11 @@ def create_app(config_name='default'):
 
 def seed_initial_data(app):
     with app.app_context():
-        user_id_for_seeding = 1
+        target_user = User.query.first()
 
-        # Cria um usuário padrão se nenhum existir
-        if User.query.count() == 0:
+        if not target_user:
             app.logger.info("No users found. Creating a default user...")
 
-            # Gera uma senha segura
             alphabet = string.ascii_letters + string.digits
             password = ''.join(secrets.choice(alphabet) for i in range(12))
 
@@ -109,14 +107,17 @@ def seed_initial_data(app):
             db.session.add(default_user)
             db.session.commit()
 
-            user_id_for_seeding = default_user.id
+            target_user = default_user
 
             print("===================================================================")
             print("USUÁRIO PADRÃO CRIADO:")
-            print(f"Username: {default_user.username}")
+            print(f"Username: {target_user.username}")
             print(f"Password: {password}")
             print("Anote esta senha. Ela não será exibida novamente.")
             print("===================================================================")
+
+        user_id_for_seeding = target_user.id
+        app.logger.info(f"Seeding data for user_id: {user_id_for_seeding}")
 
         # Seed Categories
         if Category.query.filter_by(user_id=user_id_for_seeding).count() == 0:
@@ -151,3 +152,5 @@ def seed_initial_data(app):
             ]
             db.session.bulk_save_objects(investment_types)
             db.session.commit()
+
+        print("Database seeding completed successfully.")
