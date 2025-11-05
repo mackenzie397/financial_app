@@ -1,5 +1,3 @@
-name: Deploy to PythonAnywhere via SSH (Test)
-
 on:
   push:
     branches:
@@ -15,5 +13,8 @@ jobs:
           host: ssh.pythonanywhere.com
           username: "Mackenzie"
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          debug: true # Adicionado para logs detalhados
           script: |
-            echo "Conexão SSH bem-sucedida!"
+            echo "Tentando conectar..."
+            echo "Testando a conexão..."
+            pwd
