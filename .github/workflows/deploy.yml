@@ -9,6 +9,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Add PythonAnywhere to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ssh.pythonanywhere.com >> ~/.ssh/known_hosts
+
       - name: Execute deployment script on PythonAnywhere
         uses: appleboy/ssh-action@master
         with:
