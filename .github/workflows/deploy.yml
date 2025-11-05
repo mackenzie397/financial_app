@@ -20,5 +20,6 @@ jobs:
           host: ssh.pythonanywhere.com
           username: "Mackenzie"
           password: ${{ secrets.PA_PASSWORD }}
+          debug: true
           script: |
             /home/Mackenzie/deploy.sh
