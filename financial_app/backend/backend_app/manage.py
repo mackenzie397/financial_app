@@ -23,10 +23,17 @@ def create_db_command():
 def seed_db_command():
     """Seeds the database with initial data."""
     seed_initial_data(app)
-    print('Database seeded!')
+
+@click.command(name='drop_db')
+@with_appcontext
+def drop_db_command():
+    """Drops the database tables."""
+    db.drop_all()
+    print('Database dropped!')
 
 cli.add_command(create_db_command)
 cli.add_command(seed_db_command)
+cli.add_command(drop_db_command)
 
 if __name__ == '__main__':
     cli()
