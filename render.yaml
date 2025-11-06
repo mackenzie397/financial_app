@@ -1,0 +1,33 @@
+services:
+  # Web Service for the Flask App
+  - name: financial-app-backend
+    type: web
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r financial_app/backend/backend_app/requirements.txt"
+    startCommand: "gunicorn --chdir financial_app/backend/backend_app 'src.main:create_app()'"
+    envVars:
+      - key: FLASK_CONFIG
+        value: production
+      - fromDatabase:
+          name: financial-app-db
+          property: connectionString
+
+  # PostgreSQL Database
+  - name: financial-app-db
+    type: db
+    databaseName: financial_app_db
+    user: financial_app_user
+    plan: free
+
+  # Job for Database Initialization
+  - name: db-setup
+    type: job
+    plan: free
+    startCommand: "PYTHONPATH=$PYTHONPATH:financial_app/backend/backend_app python financial_app/backend/backend_app/manage.py create_db && PYTHONPATH=$PYTHONPATH:financial_app/backend/backend_app python financial_app/backend/backend_app/manage.py seed_db"
+    envVars:
+      - key: FLASK_CONFIG
+        value: production
+      - fromDatabase:
+          name: financial-app-db
+          property: connectionString

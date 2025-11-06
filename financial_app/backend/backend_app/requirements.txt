@@ -97,3 +97,4 @@ wrapt==2.0.0
     # via deprecated
 bleach==6.3.0
 psycopg2-binary==2.9.9
+gunicorn==22.0.0 # Added for Render deployment
