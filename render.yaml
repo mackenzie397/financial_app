@@ -28,3 +28,4 @@ services:
         fromDatabase:
           name: financial-app-db
           property: connectionString
+    sync: false
