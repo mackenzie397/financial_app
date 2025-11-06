@@ -13,6 +13,8 @@ services:
     buildCommand: "find . -type f -name \"*.pyc\" -delete && pip install -r financial_app/backend/backend_app/requirements.txt"
     startCommand: "gunicorn --chdir financial_app/backend/backend_app wsgi:app"
     envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"
       - key: FLASK_CONFIG
         value: production
       - key: DATABASE_URL
