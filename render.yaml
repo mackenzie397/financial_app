@@ -11,7 +11,7 @@ services:
     runtime: python
     plan: free
     buildCommand: "pip install -r financial_app/backend/backend_app/requirements.txt"
-    startCommand: "gunicorn --chdir financial_app/backend/backend_app 'src.main:create_app()'"
+    startCommand: "gunicorn --chdir financial_app/backend/backend_app wsgi:app"
     envVars:
       - key: FLASK_CONFIG
         value: production
