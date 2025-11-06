@@ -8,6 +8,7 @@ from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
 from dotenv import load_dotenv
 import re
+from sqlalchemy import text
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -76,6 +77,15 @@ def create_app(config_name='default'):
         # log the exception with traceback
         app.logger.error(f"Unhandled exception: {e}", exc_info=True)
         return jsonify({"message": "An unexpected error occurred."}), 500
+
+    @app.route('/api/health')
+    def health_check():
+        try:
+            db.session.execute(text('SELECT 1'))
+            return jsonify({'status': 'ok'}), 200
+        except Exception as e:
+            app.logger.error(f"Health check failed: {e}")
+            return jsonify({'status': 'error', 'message': 'Database connection failed'}), 503
 
     # Rota para servir o frontend
     @app.route('/', defaults={'path': ''})
