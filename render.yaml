@@ -14,7 +14,7 @@ services:
     startCommand: "gunicorn --chdir financial_app/backend/backend_app wsgi:app"
     envVars:
       - key: PYTHON_VERSION
-        value: "3.12"
+        value: "3.12.4"
       - key: FLASK_CONFIG
         value: production
       - key: DATABASE_URL
