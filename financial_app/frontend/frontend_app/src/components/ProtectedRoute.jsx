@@ -1,5 +1,5 @@
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.jsx';
-import AuthPage from './AuthPage';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    return <AuthPage />;
+    return <Navigate to="/login" />;
   }
 
   return children;
