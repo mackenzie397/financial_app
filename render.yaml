@@ -11,19 +11,8 @@ services:
     runtime: python
     plan: free
     buildCommand: "pip install -r financial_app/backend/backend_app/requirements.txt"
+    preDeployCommand: "PYTHONPATH=$PYTHONPATH:financial_app/backend/backend_app python financial_app/backend/backend_app/manage.py create_db && PYTHONPATH=$PYTHONPATH:financial_app/backend/backend_app python financial_app/backend/backend_app/manage.py seed_db"
     startCommand: "gunicorn --chdir financial_app/backend/backend_app 'src.main:create_app()'"
-    envVars:
-      - key: FLASK_CONFIG
-        value: production
-      - fromDatabase:
-          name: financial-app-db
-          property: connectionString
-
-  # Job for Database Initialization
-  - name: db-setup
-    type: job
-    plan: free
-    startCommand: "PYTHONPATH=$PYTHONPATH:financial_app/backend/backend_app python financial_app/backend/backend_app/manage.py create_db && PYTHONPATH=$PYTHONPATH:financial_app/backend/backend_app python financial_app/backend/backend_app/manage.py seed_db"
     envVars:
       - key: FLASK_CONFIG
         value: production
