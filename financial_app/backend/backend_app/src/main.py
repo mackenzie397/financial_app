@@ -33,12 +33,6 @@ def create_app(config_name='default'):
     limiter.init_app(app)
     CORS(app, origins=app.config['CORS_ORIGINS'])
 
-    with app.app_context():
-        db.create_all()
-        # Seed the database if it's empty
-        if User.query.first() is None:
-            seed_initial_data(app)
-
     setup_logging(app)
 
     # Importar e registrar blueprints
