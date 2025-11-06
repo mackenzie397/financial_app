@@ -10,7 +10,7 @@ services:
     type: web
     runtime: python
     plan: free
-    buildCommand: "pip install -r financial_app/backend/backend_app/requirements.txt"
+    buildCommand: "find . -type f -name \"*.pyc\" -delete && pip install -r financial_app/backend/backend_app/requirements.txt"
     startCommand: "gunicorn --chdir financial_app/backend/backend_app wsgi:app"
     envVars:
       - key: FLASK_CONFIG
