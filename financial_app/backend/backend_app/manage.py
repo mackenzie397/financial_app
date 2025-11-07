@@ -1,22 +1,11 @@
 import click
 from flask.cli import with_appcontext
-from src.main import create_app, seed_initial_data
-from src.models.user import db
-import os
-
-# Create a dummy app to get the context
-app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+from financial_app.backend.backend_app.wsgi import app
+from src.main import seed_initial_data
 
 @click.group()
 def cli():
     pass
-
-@click.command(name='create_db')
-@with_appcontext
-def create_db_command():
-    """Creates the database tables."""
-    db.create_all()
-    print('Database created!')
 
 @click.command(name='seed_db')
 @with_appcontext
@@ -24,16 +13,7 @@ def seed_db_command():
     """Seeds the database with initial data."""
     seed_initial_data(app)
 
-@click.command(name='drop_db')
-@with_appcontext
-def drop_db_command():
-    """Drops the database tables."""
-    db.drop_all()
-    print('Database dropped!')
-
-cli.add_command(create_db_command)
 cli.add_command(seed_db_command)
-cli.add_command(drop_db_command)
 
 if __name__ == '__main__':
     cli()

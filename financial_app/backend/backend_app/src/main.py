@@ -18,7 +18,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 load_dotenv()
 
 from src.config import config
-from src.extensions import jwt, limiter
+from src.extensions import jwt, limiter, migrate
 from src.models.user import db, User
 from src.middleware import set_csp_header
 from src.logging_config import setup_logging
@@ -33,32 +33,8 @@ def create_app(config_name='default'):
     db.init_app(app)
     jwt.init_app(app)
     limiter.init_app(app)
+    migrate.init_app(app, db)
     CORS(app, origins=app.config['CORS_ORIGINS'])
-
-    @app.before_request
-    def ensure_db_created():
-        if app.config.get('INIT_DB', True):
-            max_retries = 5
-            retry_delay = 5  # seconds
-            for attempt in range(max_retries):
-                try:
-                    with app.app_context():
-                        db.create_all()
-                        # Seed the database if it's empty
-                        if User.query.first() is None:
-                            seed_initial_data(app)
-                    app.config['INIT_DB'] = False  # Ensure it runs only once
-                    break  # Success
-                except OperationalError as e:
-                    app.logger.warning(f"Database connection failed (attempt {attempt + 1}/{max_retries}): {e}")
-                    if attempt < max_retries - 1:
-                        time.sleep(retry_delay)
-                    else:
-                        app.logger.error("Could not connect to the database after multiple retries. Aborting.")
-                        # In a real scenario, you might want to raise the exception
-                        # or exit the application, but for Render's startup,
-                        # logging the error might be sufficient to diagnose.
-                        pass
 
     setup_logging(app)
 
