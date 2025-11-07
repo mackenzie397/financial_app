@@ -12,8 +12,12 @@ services:
     plan: free
     buildCommand: "find . -type f -name \"*.pyc\" -delete && pip install -r financial_app/backend/backend_app/requirements.txt"
     healthCheckPath: /api/health
-    startCommand: "gunicorn --chdir financial_app/backend/backend_app wsgi:app"
+    startCommand: "flask db upgrade && gunicorn --chdir financial_app/backend/backend_app wsgi:app"
     envVars:
+      - key: PYTHONPATH
+        value: "."
+      - key: FLASK_APP
+        value: "financial_app/backend/backend_app/wsgi.py"
       - key: PYTHON_VERSION
         value: "3.12.4"
       - key: SECRET_KEY

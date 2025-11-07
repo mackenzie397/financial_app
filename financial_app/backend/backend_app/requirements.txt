@@ -4,14 +4,14 @@
 #
 #    pip-compile --output-file=financial_app/backend/backend_app/requirements.txt financial_app/backend/backend_app/requirements.in
 #
+alembic==1.17.1
+    # via flask-migrate
+bleach==6.3.0
+    # via -r financial_app/backend/backend_app/requirements.in
 blinker==1.9.0
-    # via
-    #   -r financial_app/backend/backend_app/requirements.in
-    #   flask
+    # via flask
 click==8.2.1
-    # via
-    #   -r financial_app/backend/backend_app/requirements.in
-    #   flask
+    # via flask
 deprecated==1.3.1
     # via limits
 flask==3.1.2
@@ -20,6 +20,7 @@ flask==3.1.2
     #   flask-cors
     #   flask-jwt-extended
     #   flask-limiter
+    #   flask-migrate
     #   flask-sqlalchemy
 flask-cors==6.0.1
     # via -r financial_app/backend/backend_app/requirements.in
@@ -27,12 +28,18 @@ flask-jwt-extended==4.7.1
     # via -r financial_app/backend/backend_app/requirements.in
 flask-limiter==4.0.0
     # via -r financial_app/backend/backend_app/requirements.in
-flask-sqlalchemy==3.1.1
+flask-migrate==4.1.0
     # via -r financial_app/backend/backend_app/requirements.in
+flask-sqlalchemy==3.1.1
+    # via
+    #   -r financial_app/backend/backend_app/requirements.in
+    #   flask-migrate
 greenlet==3.2.3
     # via
     #   -r financial_app/backend/backend_app/requirements.in
     #   sqlalchemy
+gunicorn==23.0.0
+    # via -r financial_app/backend/backend_app/requirements.in
 iniconfig==2.3.0
     # via pytest
 itsdangerous==2.2.0
@@ -45,6 +52,8 @@ jinja2==3.1.6
     #   flask
 limits==5.6.0
     # via flask-limiter
+mako==1.3.10
+    # via alembic
 markdown-it-py==4.0.0
     # via rich
 markupsafe==3.0.2
@@ -52,6 +61,7 @@ markupsafe==3.0.2
     #   -r financial_app/backend/backend_app/requirements.in
     #   flask
     #   jinja2
+    #   mako
     #   werkzeug
 mdurl==0.1.2
     # via markdown-it-py
@@ -59,42 +69,44 @@ ordered-set==4.1.0
     # via flask-limiter
 packaging==25.0
     # via
+    #   gunicorn
     #   limits
     #   pytest
 pluggy==1.6.0
     # via pytest
+psycopg2-binary==2.9.11
+    # via -r financial_app/backend/backend_app/requirements.in
 pygments==2.19.2
     # via
     #   pytest
     #   rich
 pyjwt==2.10.1
-    # via
-    #   -r financial_app/backend/backend_app/requirements.in
-    #   flask-jwt-extended
+    # via flask-jwt-extended
 pytest==8.4.2
     # via -r financial_app/backend/backend_app/requirements.in
-python-dotenv==1.0.1
+python-dotenv==1.2.1
     # via -r financial_app/backend/backend_app/requirements.in
 rich==14.2.0
     # via flask-limiter
 sqlalchemy==2.0.41
     # via
     #   -r financial_app/backend/backend_app/requirements.in
+    #   alembic
     #   flask-sqlalchemy
 typing-extensions==4.14.0
     # via
     #   -r financial_app/backend/backend_app/requirements.in
+    #   alembic
     #   flask-limiter
     #   limits
     #   sqlalchemy
+webencodings==0.5.1
+    # via bleach
 werkzeug==3.1.3
     # via
     #   -r financial_app/backend/backend_app/requirements.in
     #   flask
     #   flask-cors
     #   flask-jwt-extended
-wrapt==2.0.0
+wrapt==2.0.1
     # via deprecated
-bleach==6.3.0
-psycopg2-binary==2.9.9
-gunicorn==22.0.0 # Added for Render deployment
