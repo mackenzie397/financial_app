@@ -34,7 +34,7 @@ def create_app(config_name='default'):
     jwt.init_app(app)
     limiter.init_app(app)
     migrate.init_app(app, db)
-    CORS(app, origins=app.config['CORS_ORIGINS'])
+    CORS(app, origins=app.config['CORS_ORIGINS'], supports_credentials=True)
 
     setup_logging(app)
 
