@@ -6,7 +6,7 @@ class Config:
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
     JWT_TOKEN_LOCATION = ['cookies']
     JWT_COOKIE_SECURE = True
-    JWT_COOKIE_CSRF_PROTECT = True
+    JWT_COOKIE_CSRF_PROTECT = False
     JWT_COOKIE_SAMESITE = 'None'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     CORS_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000')
