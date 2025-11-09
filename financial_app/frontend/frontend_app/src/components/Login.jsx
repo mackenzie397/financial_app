@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +13,7 @@ const Login = ({ onToggleMode }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +22,9 @@ const Login = ({ onToggleMode }) => {
 
     const result = await login(username, password);
     
-    if (!result.success) {
+    if (result.success) {
+      navigate('/');
+    } else {
       setError(result.message);
     }
     
