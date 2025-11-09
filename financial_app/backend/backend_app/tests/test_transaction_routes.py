@@ -97,9 +97,11 @@ def test_delete_transaction_not_found(auth_client):
     response = client.delete('/api/transactions/999')
     assert response.status_code == HTTPStatus.NOT_FOUND
 
-def test_get_transaction_other_user(auth_client, client):
+from src.models.user import db, User
+from flask_jwt_extended import create_access_token
+
+def test_get_transaction_other_user(auth_client, client, app):
     client1, user1 = auth_client
-    # User 1 creates a transaction
     category = client1.post('/api/categories', json={'name': 'User1Category', 'category_type': 'expense'}).json
     payment_method = client1.post('/api/payment-methods', json={'name': 'User1PaymentMethod'}).json
     transaction = client1.post('/api/transactions', json={
@@ -110,25 +112,18 @@ def test_get_transaction_other_user(auth_client, client):
         'payment_method_id': payment_method['id']
     }).json
 
-    # Register and login User 2
-    client.post('/api/register', json={
-        'username': 'testuser2',
-        'email': 'test2@example.com',
-        'password': 'Password123!'
-    })
-    login_response = client.post('/api/login', json={
-        'username': 'testuser2',
-        'password': 'Password123!'
-    })
-    token = login_response.json['access_token']
+    with app.app_context():
+        user2 = User(username='testuser2', email='test2@example.com')
+        user2.set_password('Password123!')
+        db.session.add(user2)
+        db.session.commit()
+        token = create_access_token(identity=str(user2.id))
 
-    # User 2 tries to access User 1's transaction
     response = client.get(f'/api/transactions/{transaction["id"]}', headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND
 
-def test_update_transaction_other_user(auth_client, client):
+def test_update_transaction_other_user(auth_client, client, app):
     client1, user1 = auth_client
-    # User 1 creates a transaction
     category = client1.post('/api/categories', json={'name': 'User1Category', 'category_type': 'expense'}).json
     payment_method = client1.post('/api/payment-methods', json={'name': 'User1PaymentMethod'}).json
     transaction = client1.post('/api/transactions', json={
@@ -139,25 +134,18 @@ def test_update_transaction_other_user(auth_client, client):
         'payment_method_id': payment_method['id']
     }).json
 
-    # Register and login User 2
-    client.post('/api/register', json={
-        'username': 'testuser2',
-        'email': 'test2@example.com',
-        'password': 'Password123!'
-    })
-    login_response = client.post('/api/login', json={
-        'username': 'testuser2',
-        'password': 'Password123!'
-    })
-    token = login_response.json['access_token']
+    with app.app_context():
+        user2 = User(username='testuser2', email='test2@example.com')
+        user2.set_password('Password123!')
+        db.session.add(user2)
+        db.session.commit()
+        token = create_access_token(identity=str(user2.id))
 
-    # User 2 tries to update User 1's transaction
     response = client.put(f'/api/transactions/{transaction["id"]}', json={'description': 'Updated by Other User'}, headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND
 
-def test_delete_transaction_other_user(auth_client, client):
+def test_delete_transaction_other_user(auth_client, client, app):
     client1, user1 = auth_client
-    # User 1 creates a transaction
     category = client1.post('/api/categories', json={'name': 'User1Category', 'category_type': 'expense'}).json
     payment_method = client1.post('/api/payment-methods', json={'name': 'User1PaymentMethod'}).json
     transaction = client1.post('/api/transactions', json={
@@ -168,18 +156,12 @@ def test_delete_transaction_other_user(auth_client, client):
         'payment_method_id': payment_method['id']
     }).json
 
-    # Register and login User 2
-    client.post('/api/register', json={
-        'username': 'testuser2',
-        'email': 'test2@example.com',
-        'password': 'Password123!'
-    })
-    login_response = client.post('/api/login', json={
-        'username': 'testuser2',
-        'password': 'Password123!'
-    })
-    token = login_response.json['access_token']
+    with app.app_context():
+        user2 = User(username='testuser2', email='test2@example.com')
+        user2.set_password('Password123!')
+        db.session.add(user2)
+        db.session.commit()
+        token = create_access_token(identity=str(user2.id))
 
-    # User 2 tries to delete User 1's transaction
     response = client.delete(f'/api/transactions/{transaction["id"]}', headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND

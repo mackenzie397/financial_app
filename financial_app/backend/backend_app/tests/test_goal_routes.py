@@ -105,90 +105,65 @@ def test_contribute_to_goal_not_found(auth_client):
     response = client.post('/api/goals/999/contribute', json={'amount': 10.0})
     assert response.status_code == HTTPStatus.NOT_FOUND
 
-def test_get_goal_other_user(auth_client, client):
+from src.models.user import db, User
+from flask_jwt_extended import create_access_token
+
+def test_get_goal_other_user(auth_client, client, app):
     client1, user1 = auth_client
-    # User 1 creates a goal
     post_response = client1.post('/api/goals', json={'name': 'User1 Goal', 'target_amount': 1000})
     goal_id = post_response.json['id']
 
-    # Register and login User 2
-    client.post('/api/register', json={
-        'username': 'testuser2',
-        'email': 'test2@example.com',
-        'password': 'Password123!'
-    })
-    login_response = client.post('/api/login', json={
-        'username': 'testuser2',
-        'password': 'Password123!'
-    })
-    token = login_response.json['access_token']
+    with app.app_context():
+        user2 = User(username='testuser2', email='test2@example.com')
+        user2.set_password('Password123!')
+        db.session.add(user2)
+        db.session.commit()
+        token = create_access_token(identity=str(user2.id))
 
-    # User 2 tries to access User 1's goal
     response = client.get(f'/api/goals/{goal_id}', headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND
 
-def test_update_goal_other_user(auth_client, client):
+def test_update_goal_other_user(auth_client, client, app):
     client1, user1 = auth_client
-    # User 1 creates a goal
     post_response = client1.post('/api/goals', json={'name': 'User1 Goal', 'target_amount': 1000})
     goal_id = post_response.json['id']
 
-    # Register and login User 2
-    client.post('/api/register', json={
-        'username': 'testuser2',
-        'email': 'test2@example.com',
-        'password': 'Password123!'
-    })
-    login_response = client.post('/api/login', json={
-        'username': 'testuser2',
-        'password': 'Password123!'
-    })
-    token = login_response.json['access_token']
+    with app.app_context():
+        user2 = User(username='testuser2', email='test2@example.com')
+        user2.set_password('Password123!')
+        db.session.add(user2)
+        db.session.commit()
+        token = create_access_token(identity=str(user2.id))
 
-    # User 2 tries to update User 1's goal
     response = client.put(f'/api/goals/{goal_id}', json={'name': 'Updated by Other User'}, headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND
 
-def test_delete_goal_other_user(auth_client, client):
+def test_delete_goal_other_user(auth_client, client, app):
     client1, user1 = auth_client
-    # User 1 creates a goal
     post_response = client1.post('/api/goals', json={'name': 'User1 Goal', 'target_amount': 1000})
     goal_id = post_response.json['id']
 
-    # Register and login User 2
-    client.post('/api/register', json={
-        'username': 'testuser2',
-        'email': 'test2@example.com',
-        'password': 'Password123!'
-    })
-    login_response = client.post('/api/login', json={
-        'username': 'testuser2',
-        'password': 'Password123!'
-    })
-    token = login_response.json['access_token']
+    with app.app_context():
+        user2 = User(username='testuser2', email='test2@example.com')
+        user2.set_password('Password123!')
+        db.session.add(user2)
+        db.session.commit()
+        token = create_access_token(identity=str(user2.id))
 
-    # User 2 tries to delete User 1's goal
     response = client.delete(f'/api/goals/{goal_id}', headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND
 
-def test_contribute_to_goal_other_user(auth_client, client):
+def test_contribute_to_goal_other_user(auth_client, client, app):
     client1, user1 = auth_client
-    # User 1 creates a goal
     post_response = client1.post('/api/goals', json={'name': 'User1 Goal', 'target_amount': 1000})
     goal_id = post_response.json['id']
 
-    # Register and login User 2
-    client.post('/api/register', json={
-        'username': 'testuser2',
-        'email': 'test2@example.com',
-        'password': 'Password123!'
-    })
-    login_response = client.post('/api/login', json={
-        'username': 'testuser2',
-        'password': 'Password123!'
-    })
-    token = login_response.json['access_token']
+    with app.app_context():
+        user2 = User(username='testuser2', email='test2@example.com')
+        user2.set_password('Password123!')
+        db.session.add(user2)
+        db.session.commit()
+        token = create_access_token(identity=str(user2.id))
 
-    # User 2 tries to contribute to User 1's goal
     response = client.post(f'/api/goals/{goal_id}/contribute', json={'amount': 10.0}, headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND

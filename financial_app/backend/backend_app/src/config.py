@@ -9,7 +9,8 @@ class Config:
     JWT_COOKIE_CSRF_PROTECT = False
     JWT_COOKIE_SAMESITE = 'None'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000')
+    CORS_ORIGINS_STRING = os.environ.get('CORS_ORIGINS', 'http://localhost:3000')
+    CORS_ORIGINS = [origin.strip() for origin in CORS_ORIGINS_STRING.split(',')]
 
 class DevelopmentConfig(Config):
     DEBUG = True

@@ -1,6 +1,9 @@
 from flask import Blueprint, request, jsonify
 from src.models.user import db, User
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import (
+    create_access_token, jwt_required, get_jwt_identity,
+    set_access_cookies, unset_jwt_cookies
+)
 from src.extensions import jwt, limiter
 import re
 import bleach
@@ -58,9 +61,18 @@ def login():
 
     if user and user.check_password(password):
         access_token = create_access_token(identity=str(user.id))
-        return jsonify(access_token=access_token), 200
+        response = jsonify(message="Login successful")
+        set_access_cookies(response, access_token)
+        return response, 200
     else:
         return jsonify({"message": "Invalid credentials"}), 401
+
+@user_bp.route("/logout", methods=["POST"])
+@jwt_required()
+def logout():
+    response = jsonify(message="Logout successful")
+    unset_jwt_cookies(response)
+    return response, 200
 
 @user_bp.route("/protected", methods=["GET"])
 @jwt_required()

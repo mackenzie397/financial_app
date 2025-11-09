@@ -102,9 +102,11 @@ def test_delete_investment_not_found(auth_client):
     response = client.delete('/api/investments/999')
     assert response.status_code == HTTPStatus.NOT_FOUND
 
-def test_get_investment_other_user(auth_client, client):
+from src.models.user import db, User
+from flask_jwt_extended import create_access_token
+
+def test_get_investment_other_user(auth_client, client, app):
     client1, user1 = auth_client
-    # User 1 creates an investment
     investment_type = client1.post('/api/investment-types', json={'name': 'User1 Type'}).json
     investment = client1.post('/api/investments', json={
         'name': 'User1 Investment',
@@ -112,25 +114,18 @@ def test_get_investment_other_user(auth_client, client):
         'investment_type_id': investment_type['id']
     }).json
 
-    # Register and login User 2
-    client.post('/api/register', json={
-        'username': 'testuser2',
-        'email': 'test2@example.com',
-        'password': 'Password123!'
-    })
-    login_response = client.post('/api/login', json={
-        'username': 'testuser2',
-        'password': 'Password123!'
-    })
-    token = login_response.json['access_token']
+    with app.app_context():
+        user2 = User(username='testuser2', email='test2@example.com')
+        user2.set_password('Password123!')
+        db.session.add(user2)
+        db.session.commit()
+        token = create_access_token(identity=str(user2.id))
 
-    # User 2 tries to access User 1's investment
     response = client.get(f'/api/investments/{investment["id"]}', headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND
 
-def test_update_investment_other_user(auth_client, client):
+def test_update_investment_other_user(auth_client, client, app):
     client1, user1 = auth_client
-    # User 1 creates an investment
     investment_type = client1.post('/api/investment-types', json={'name': 'User1 Type'}).json
     investment = client1.post('/api/investments', json={
         'name': 'User1 Investment',
@@ -138,25 +133,18 @@ def test_update_investment_other_user(auth_client, client):
         'investment_type_id': investment_type['id']
     }).json
 
-    # Register and login User 2
-    client.post('/api/register', json={
-        'username': 'testuser2',
-        'email': 'test2@example.com',
-        'password': 'Password123!'
-    })
-    login_response = client.post('/api/login', json={
-        'username': 'testuser2',
-        'password': 'Password123!'
-    })
-    token = login_response.json['access_token']
+    with app.app_context():
+        user2 = User(username='testuser2', email='test2@example.com')
+        user2.set_password('Password123!')
+        db.session.add(user2)
+        db.session.commit()
+        token = create_access_token(identity=str(user2.id))
 
-    # User 2 tries to update User 1's investment
     response = client.put(f'/api/investments/{investment["id"]}', json={'name': 'Updated by Other User'}, headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND
 
-def test_delete_investment_other_user(auth_client, client):
+def test_delete_investment_other_user(auth_client, client, app):
     client1, user1 = auth_client
-    # User 1 creates an investment
     investment_type = client1.post('/api/investment-types', json={'name': 'User1 Type'}).json
     investment = client1.post('/api/investments', json={
         'name': 'User1 Investment',
@@ -164,18 +152,12 @@ def test_delete_investment_other_user(auth_client, client):
         'investment_type_id': investment_type['id']
     }).json
 
-    # Register and login User 2
-    client.post('/api/register', json={
-        'username': 'testuser2',
-        'email': 'test2@example.com',
-        'password': 'Password123!'
-    })
-    login_response = client.post('/api/login', json={
-        'username': 'testuser2',
-        'password': 'Password123!'
-    })
-    token = login_response.json['access_token']
+    with app.app_context():
+        user2 = User(username='testuser2', email='test2@example.com')
+        user2.set_password('Password123!')
+        db.session.add(user2)
+        db.session.commit()
+        token = create_access_token(identity=str(user2.id))
 
-    # User 2 tries to delete User 1's investment
     response = client.delete(f'/api/investments/{investment["id"]}', headers={'Authorization': f'Bearer {token}'})
     assert response.status_code == HTTPStatus.NOT_FOUND

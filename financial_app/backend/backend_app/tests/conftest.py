@@ -37,6 +37,8 @@ def new_user(app):
         db.session.commit()
         return user
 
+from flask_jwt_extended import create_access_token
+
 @pytest.fixture
 def auth_client(app):
     client = app.test_client()
@@ -46,13 +48,9 @@ def auth_client(app):
         db.session.add(user)
         db.session.commit()
 
-        response = client.post('/api/login', json={
-            'username': 'testuser',
-            'password': 'Password123!'
-        })
-
-        token = response.json['access_token']
-        client.environ_base['HTTP_AUTHORIZATION'] = f'Bearer {token}'
+        # Generate token manually and set it in the header
+        access_token = create_access_token(identity=str(user.id))
+        client.environ_base['HTTP_AUTHORIZATION'] = f'Bearer {access_token}'
 
         yield client, user
 
