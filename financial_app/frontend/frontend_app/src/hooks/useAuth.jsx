@@ -16,38 +16,29 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadUserFromStorage = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          const response = await api.get('/current_user');
-          setUser(response.data);
-        } catch (error) {
-          console.error("Failed to fetch user", error);
-          localStorage.removeItem('token');
-        }
+    const checkLoggedIn = async () => {
+      try {
+        const response = await api.get('/current_user');
+        setUser(response.data);
+      } catch (error) {
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-    loadUserFromStorage();
+    checkLoggedIn();
   }, []);
 
   const login = async (username, password) => {
     try {
-      const response = await api.post('/login', { username, password });
-      const { access_token } = response.data;
-      localStorage.setItem('token', access_token);
-      api.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-
+      await api.post('/login', { username, password });
       const userResponse = await api.get('/current_user');
       setUser(userResponse.data);
-      
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Erro ao fazer login' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Erro ao fazer login'
       };
     }
   };
@@ -57,17 +48,21 @@ export const AuthProvider = ({ children }) => {
       await api.post('/register', { username, email, password });
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Erro ao registrar usuário' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Erro ao registrar usuário'
       };
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
-    setUser(null);
+  const logout = async () => {
+    try {
+      await api.post('/logout');
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      setUser(null);
+    }
   };
 
   const value = {

@@ -20,7 +20,8 @@ def test_login_with_valid_credentials(client):
         'password': 'Password123!'
     })
     assert response.status_code == HTTPStatus.OK
-    assert 'access_token' in response.json
+    assert response.json['message'] == 'Login successful'
+    assert 'access_token_cookie' in response.headers['Set-Cookie']
 
 def test_access_protected_route_with_token(auth_client):
     client, user = auth_client
