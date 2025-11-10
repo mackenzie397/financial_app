@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 from src.models.user import db, User
+from src.models.category import Category
+from src.models.payment_method import PaymentMethod
 from flask_jwt_extended import (
     create_access_token, jwt_required, get_jwt_identity,
     set_access_cookies, unset_jwt_cookies
@@ -46,6 +48,27 @@ def register():
     new_user = User(username=username, email=email)
     new_user.set_password(password)
     db.session.add(new_user)
+    db.session.commit()
+
+    # Create default categories for the new user
+    default_categories = [
+        "Alimentação", "Transporte", "Moradia", "Lazer", "Saúde",
+        "Educação", "Investimentos", "Outros"
+    ]
+    for category_name in default_categories:
+        # Assuming category_type should be set, defaulting to 'expense'
+        new_category = Category(name=category_name, user_id=new_user.id, category_type='expense')
+        db.session.add(new_category)
+
+    # Create default payment methods for the new user
+    default_payment_methods = [
+        "Dinheiro", "Cartão de Crédito", "Cartão de Débito", "PIX",
+        "Transferência Bancária"
+    ]
+    for method_name in default_payment_methods:
+        new_method = PaymentMethod(name=method_name, user_id=new_user.id)
+        db.session.add(new_method)
+
     db.session.commit()
 
     return jsonify({"message": "User registered successfully"}), 201

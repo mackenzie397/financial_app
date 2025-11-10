@@ -1,6 +1,13 @@
 from http import HTTPStatus
+from src.models.user import User
+from src.models.category import Category
+from src.models.payment_method import PaymentMethod
 
-def test_register_successfully(client):
+def test_register_successfully_and_creates_defaults(client):
+    """
+    Tests that user registration is successful and that default categories
+    and payment methods are created.
+    """
     response = client.post('/api/register', json={
         'username': 'newuser',
         'email': 'new@example.com',
@@ -8,6 +15,32 @@ def test_register_successfully(client):
     })
     assert response.status_code == HTTPStatus.CREATED
     assert response.json['message'] == 'User registered successfully'
+
+    # Verify that the user was created
+    user = User.query.filter_by(username='newuser').first()
+    assert user is not None
+
+    # Verify default categories were created
+    categories = Category.query.filter_by(user_id=user.id).all()
+    assert len(categories) > 0
+    default_categories = [
+        "Alimentação", "Transporte", "Moradia", "Lazer", "Saúde",
+        "Educação", "Investimentos", "Outros"
+    ]
+    category_names = [c.name for c in categories]
+    for default_cat in default_categories:
+        assert default_cat in category_names
+
+    # Verify default payment methods were created
+    payment_methods = PaymentMethod.query.filter_by(user_id=user.id).all()
+    assert len(payment_methods) > 0
+    default_payment_methods = [
+        "Dinheiro", "Cartão de Crédito", "Cartão de Débito", "PIX",
+        "Transferência Bancária"
+    ]
+    method_names = [pm.name for pm in payment_methods]
+    for default_pm in default_payment_methods:
+        assert default_pm in method_names
 
 def test_login_successfully(client):
     client.post('/api/register', json={
