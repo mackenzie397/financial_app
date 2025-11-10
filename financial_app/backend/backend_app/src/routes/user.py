@@ -50,14 +50,21 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    # Create default categories for the new user
-    default_categories = [
+    # Create default expense categories for the new user
+    default_expense_categories = [
         "Alimentação", "Transporte", "Moradia", "Lazer", "Saúde",
         "Educação", "Investimentos", "Outros"
     ]
-    for category_name in default_categories:
-        # Assuming category_type should be set, defaulting to 'expense'
+    for category_name in default_expense_categories:
         new_category = Category(name=category_name, user_id=new_user.id, category_type='expense')
+        db.session.add(new_category)
+
+    # Create default income categories for the new user
+    default_income_categories = [
+        "Salário", "Renda Extra", "Investimentos", "Outros"
+    ]
+    for category_name in default_income_categories:
+        new_category = Category(name=category_name, user_id=new_user.id, category_type='income')
         db.session.add(new_category)
 
     # Create default payment methods for the new user
