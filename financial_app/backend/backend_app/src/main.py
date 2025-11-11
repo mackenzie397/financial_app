@@ -46,6 +46,10 @@ def create_app(config_name='default'):
             "version": "1.0.0",
         },
         "servers": [{"url": "/api", "description": "API Root"}],
+        "security": [
+            {"bearerAuth": []},
+            {"apiKey": []}
+        ],
         "components": {
             "securitySchemes": {
                 "bearerAuth": {
