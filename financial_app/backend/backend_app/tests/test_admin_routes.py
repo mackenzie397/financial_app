@@ -69,6 +69,6 @@ def test_swagger_ui_authorized(client):
     assert response.status_code == HTTPStatus.OK
     # Decode response data and check for the title text
     response_text = response.data.decode('utf-8')
-    assert '<title>Flasgger</title>' in response_text
+    assert '<title>Financial App API</title>' in response_text
 
     del os.environ['SWAGGER_UI_API_KEY']
