@@ -38,12 +38,38 @@ def create_app(config_name='default'):
 
     # Initialize Flasgger
     from flasgger import Swagger
+    swagger_template = {
+        "openapi": "3.0.0",
+        "info": {
+            "title": "Financial App API",
+            "description": "API for managing personal finances, including transactions, goals, and investments.",
+            "version": "1.0.0",
+        },
+        "servers": [{"url": "/api", "description": "API Root"}],
+        "security": [{"cookieAuth": []}],
+        "components": {
+            "securitySchemes": {
+                "cookieAuth": {
+                    "type": "apiKey",
+                    "in": "cookie",
+                    "name": "access_token_cookie"
+                },
+                "apiKey": {
+                    "type": "apiKey",
+                    "in": "header",
+                    "name": "X-API-KEY",
+                    "description": "API Key for administrative endpoints"
+                }
+            }
+        },
+    }
     app.config['SWAGGER'] = {
         'title': 'Financial App API',
-        'uiversion': 3,  # Use OpenAPI 3.0
-        'specs_route': '/apidocs/'
+        'uiversion': 3,
+        'specs_route': '/apidocs/',
+        'template': swagger_template
     }
-    Swagger(app, template_file='swagger_template.yml')
+    Swagger(app)
 
     @app.before_request
     def protect_swagger_ui():
