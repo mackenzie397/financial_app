@@ -38,6 +38,11 @@ def create_app(config_name='default'):
 
     # Initialize Flasgger
     from flasgger import Swagger
+    app.config['SWAGGER'] = {
+        'title': 'Financial App API',
+        'uiversion': 3,  # Use OpenAPI 3.0
+        'specs_route': '/apidocs/'
+    }
     Swagger(app, template_file='swagger_template.yml')
 
     @app.before_request
