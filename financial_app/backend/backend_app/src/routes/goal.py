@@ -119,11 +119,11 @@ def get_goals():
     security:
       - bearerAuth: []
     parameters:
-      - in: query
-        name: status
-        schema:
-          type: string
-          enum: [active, completed, paused]
+      - name: status
+        in: query
+        type: string
+        enum: [active, completed, paused]
+        required: false
         description: Filter goals by status.
     responses:
       200:
@@ -153,11 +153,10 @@ def get_goal(id):
     security:
       - bearerAuth: []
     parameters:
-      - in: path
-        name: id
+      - name: id
+        in: path
+        type: integer
         required: true
-        schema:
-          type: integer
         description: The ID of the goal to retrieve.
     responses:
       200:
@@ -180,11 +179,10 @@ def update_goal(id):
     security:
       - bearerAuth: []
     parameters:
-      - in: path
-        name: id
+      - name: id
+        in: path
+        type: integer
         required: true
-        schema:
-          type: integer
         description: The ID of the goal to update.
     requestBody:
       required: true
@@ -275,11 +273,10 @@ def delete_goal(id):
     security:
       - bearerAuth: []
     parameters:
-      - in: path
-        name: id
+      - name: id
+        in: path
+        type: integer
         required: true
-        schema:
-          type: integer
         description: The ID of the goal to delete.
     responses:
       200:
@@ -304,11 +301,10 @@ def contribute_to_goal(id):
     security:
       - bearerAuth: []
     parameters:
-      - in: path
-        name: id
+      - name: id
+        in: path
+        type: integer
         required: true
-        schema:
-          type: integer
         description: The ID of the goal to contribute to.
     requestBody:
       required: true

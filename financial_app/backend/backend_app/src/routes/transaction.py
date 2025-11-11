@@ -142,15 +142,15 @@ def get_transactions():
     security:
       - bearerAuth: []
     parameters:
-      - in: query
-        name: year
-        schema:
-          type: integer
+      - name: year
+        in: query
+        type: integer
+        required: false
         description: Filter transactions by year.
-      - in: query
-        name: month
-        schema:
-          type: integer
+      - name: month
+        in: query
+        type: integer
+        required: false
         description: Filter transactions by month.
     responses:
       200:
@@ -194,11 +194,10 @@ def get_transaction(id):
     security:
       - bearerAuth: []
     parameters:
-      - in: path
-        name: id
+      - name: id
+        in: path
+        type: integer
         required: true
-        schema:
-          type: integer
         description: The ID of the transaction to retrieve.
     responses:
       200:
@@ -221,11 +220,10 @@ def update_transaction(id):
     security:
       - bearerAuth: []
     parameters:
-      - in: path
-        name: id
+      - name: id
+        in: path
+        type: integer
         required: true
-        schema:
-          type: integer
         description: The ID of the transaction to update.
     requestBody:
       required: true
@@ -331,11 +329,10 @@ def delete_transaction(id):
     security:
       - bearerAuth: []
     parameters:
-      - in: path
-        name: id
+      - name: id
+        in: path
+        type: integer
         required: true
-        schema:
-          type: integer
         description: The ID of the transaction to delete.
     responses:
       200:
@@ -360,15 +357,15 @@ def get_transactions_summary():
     security:
       - bearerAuth: []
     parameters:
-      - in: query
-        name: year
-        schema:
-          type: integer
+      - name: year
+        in: query
+        type: integer
+        required: false
         description: Filter summary by year.
-      - in: query
-        name: month
-        schema:
-          type: integer
+      - name: month
+        in: query
+        type: integer
+        required: false
         description: Filter summary by month.
     responses:
       200:

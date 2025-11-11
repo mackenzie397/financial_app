@@ -123,20 +123,20 @@ def get_investments():
     security:
       - bearerAuth: []
     parameters:
-      - in: query
-        name: investment_type_id
-        schema:
-          type: integer
+      - name: investment_type_id
+        in: query
+        type: integer
+        required: false
         description: Filter investments by type ID.
-      - in: query
-        name: year
-        schema:
-          type: integer
+      - name: year
+        in: query
+        type: integer
+        required: false
         description: Filter investments by year.
-      - in: query
-        name: month
-        schema:
-          type: integer
+      - name: month
+        in: query
+        type: integer
+        required: false
         description: Filter investments by month.
     responses:
       200:
@@ -188,11 +188,10 @@ def get_investment(id):
     security:
       - bearerAuth: []
     parameters:
-      - in: path
-        name: id
+      - name: id
+        in: path
+        type: integer
         required: true
-        schema:
-          type: integer
         description: The ID of the investment to retrieve.
     responses:
       200:
@@ -215,11 +214,10 @@ def update_investment(id):
     security:
       - bearerAuth: []
     parameters:
-      - in: path
-        name: id
+      - name: id
+        in: path
+        type: integer
         required: true
-        schema:
-          type: integer
         description: The ID of the investment to update.
     requestBody:
       required: true
@@ -311,11 +309,10 @@ def delete_investment(id):
     security:
       - bearerAuth: []
     parameters:
-      - in: path
-        name: id
+      - name: id
+        in: path
+        type: integer
         required: true
-        schema:
-          type: integer
         description: The ID of the investment to delete.
     responses:
       200:
@@ -340,11 +337,10 @@ def contribute_to_investment(id):
     security:
       - bearerAuth: []
     parameters:
-      - in: path
-        name: id
+      - name: id
+        in: path
+        type: integer
         required: true
-        schema:
-          type: integer
         description: The ID of the investment to contribute to.
     requestBody:
       required: true
@@ -397,11 +393,10 @@ def withdraw_from_investment(id):
     security:
       - bearerAuth: []
     parameters:
-      - in: path
-        name: id
+      - name: id
+        in: path
+        type: integer
         required: true
-        schema:
-          type: integer
         description: The ID of the investment to withdraw from.
     requestBody:
       required: true
