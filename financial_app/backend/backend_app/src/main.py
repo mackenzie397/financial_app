@@ -38,42 +38,19 @@ def create_app(config_name='default'):
 
     # Initialize Flasgger
     from flasgger import Swagger
-    swagger_template = {
-        "openapi": "3.0.0",
-        "info": {
-            "title": "Financial App API",
-            "description": "API for managing personal finances, including transactions, goals, and investments.",
-            "version": "1.0.0",
-        },
-        "servers": [{"url": "/api", "description": "API Root"}],
-        "security": [
-            {"bearerAuth": []},
-            {"apiKey": []}
-        ],
-        "components": {
-            "securitySchemes": {
-                "bearerAuth": {
-                    "type": "http",
-                    "scheme": "bearer",
-                    "bearerFormat": "JWT",
-                    "description": "Enter your access token in the format: Bearer {token}"
-                },
-                "apiKey": {
-                    "type": "apiKey",
-                    "in": "header",
-                    "name": "X-API-KEY",
-                    "description": "API Key for administrative endpoints"
-                }
-            }
-        },
-    }
+    import yaml
+
+    # Load the Swagger template from the YAML file
+    template_path = os.path.join(os.path.dirname(__file__), 'swagger_template.yml')
+    with open(template_path, 'r') as f:
+        swagger_template = yaml.safe_load(f)
+
     app.config['SWAGGER'] = {
         'title': 'Financial App API',
         'uiversion': 3,
-        'specs_route': '/apidocs/',
-        'template': swagger_template
+        'specs_route': '/apidocs/'
     }
-    Swagger(app)
+    Swagger(app, template=swagger_template)
 
     @app.before_request
     def protect_swagger_ui():
