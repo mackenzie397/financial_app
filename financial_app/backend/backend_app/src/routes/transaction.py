@@ -12,6 +12,57 @@ transaction_bp = Blueprint("transaction_bp", __name__)
 @transaction_bp.route("/transactions", methods=["POST"])
 @jwt_required()
 def add_transaction():
+    """Add a new transaction
+    Creates a new income or expense transaction for the authenticated user.
+    ---
+    tags:
+      - Transaction
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - description
+              - amount
+              - transaction_type
+              - category_id
+            properties:
+              description:
+                type: string
+                example: Salary
+              amount:
+                type: number
+                format: float
+                example: 2500.00
+              date:
+                type: string
+                format: date
+                example: "2024-07-28"
+              transaction_type:
+                type: string
+                enum: [income, expense]
+                example: income
+              category_id:
+                type: integer
+                example: 1
+              payment_method_id:
+                type: integer
+                example: 1
+              notes:
+                type: string
+                example: Monthly salary deposit.
+    responses:
+      201:
+        description: Transaction created successfully.
+      400:
+        description: Bad request (e.g., missing fields, invalid data).
+      404:
+        description: Not found (e.g., category or payment method not found).
+    """
     user_id = get_jwt_identity()
     data = request.get_json()
 
@@ -83,6 +134,30 @@ def add_transaction():
 @transaction_bp.route("/transactions", methods=["GET"])
 @jwt_required()
 def get_transactions():
+    """Get all transactions
+    Retrieves a list of all transactions for the authenticated user, with optional filtering by year and month.
+    ---
+    tags:
+      - Transaction
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: query
+        name: year
+        schema:
+          type: integer
+        description: Filter transactions by year.
+      - in: query
+        name: month
+        schema:
+          type: integer
+        description: Filter transactions by month.
+    responses:
+      200:
+        description: A list of transactions.
+      400:
+        description: Bad request (e.g., invalid year or month).
+    """
     user_id = get_jwt_identity()
     year = request.args.get("year")
     month = request.args.get("month")
@@ -111,6 +186,26 @@ def get_transactions():
 @transaction_bp.route("/transactions/<int:id>", methods=["GET"])
 @jwt_required()
 def get_transaction(id):
+    """Get a specific transaction
+    Retrieves a single transaction by its ID.
+    ---
+    tags:
+      - Transaction
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the transaction to retrieve.
+    responses:
+      200:
+        description: The transaction details.
+      404:
+        description: Transaction not found.
+    """
     user_id = get_jwt_identity()
     transaction = Transaction.query.filter_by(id=id, user_id=user_id).first_or_404()
     return jsonify(transaction.to_dict())
@@ -118,6 +213,52 @@ def get_transaction(id):
 @transaction_bp.route("/transactions/<int:id>", methods=["PUT"])
 @jwt_required()
 def update_transaction(id):
+    """Update a transaction
+    Updates the details of a specific transaction.
+    ---
+    tags:
+      - Transaction
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the transaction to update.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              description:
+                type: string
+              amount:
+                type: number
+                format: float
+              date:
+                type: string
+                format: date
+              transaction_type:
+                type: string
+                enum: [income, expense]
+              category_id:
+                type: integer
+              payment_method_id:
+                type: integer
+              notes:
+                type: string
+    responses:
+      200:
+        description: Transaction updated successfully.
+      400:
+        description: Bad request (e.g., invalid data).
+      404:
+        description: Not found (e.g., transaction, category, or payment method not found).
+    """
     user_id = get_jwt_identity()
     transaction = Transaction.query.filter_by(id=id, user_id=user_id).first_or_404()
     data = request.get_json()
@@ -182,6 +323,26 @@ def update_transaction(id):
 @transaction_bp.route("/transactions/<int:id>", methods=["DELETE"])
 @jwt_required()
 def delete_transaction(id):
+    """Delete a transaction
+    Deletes a specific transaction by its ID.
+    ---
+    tags:
+      - Transaction
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the transaction to delete.
+    responses:
+      200:
+        description: Transaction deleted successfully.
+      404:
+        description: Transaction not found.
+    """
     user_id = get_jwt_identity()
     transaction = Transaction.query.filter_by(id=id, user_id=user_id).first_or_404()
     db.session.delete(transaction)
@@ -191,6 +352,46 @@ def delete_transaction(id):
 @transaction_bp.route("/transactions/summary", methods=["GET"])
 @jwt_required()
 def get_transactions_summary():
+    """Get transactions summary
+    Retrieves a summary of income, expenses, and balance for the authenticated user, with optional filtering by year and month.
+    ---
+    tags:
+      - Transaction
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: query
+        name: year
+        schema:
+          type: integer
+        description: Filter summary by year.
+      - in: query
+        name: month
+        schema:
+          type: integer
+        description: Filter summary by month.
+    responses:
+      200:
+        description: A summary of transactions.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                total_income:
+                  type: number
+                  format: float
+                total_expense:
+                  type: number
+                  format: float
+                balance:
+                  type: number
+                  format: float
+                transaction_count:
+                  type: integer
+      400:
+        description: Bad request (e.g., invalid year or month).
+    """
     user_id = get_jwt_identity()
     year = request.args.get("year")
     month = request.args.get("month")

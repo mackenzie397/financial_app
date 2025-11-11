@@ -10,6 +10,51 @@ goal_bp = Blueprint("goal_bp", __name__)
 @goal_bp.route("/goals", methods=["POST"])
 @jwt_required()
 def add_goal():
+    """Add a new goal
+    Creates a new financial goal for the authenticated user.
+    ---
+    tags:
+      - Goal
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - target_amount
+            properties:
+              name:
+                type: string
+                example: "New Car"
+              description:
+                type: string
+                example: "Saving for a down payment"
+              target_amount:
+                type: number
+                format: float
+                example: 10000.00
+              current_amount:
+                type: number
+                format: float
+                example: 1500.00
+              target_date:
+                type: string
+                format: date
+                example: "2025-12-31"
+              status:
+                type: string
+                enum: [active, completed, paused]
+                example: "active"
+    responses:
+      201:
+        description: Goal created successfully.
+      400:
+        description: Bad request (e.g., missing fields, invalid data).
+    """
     user_id = get_jwt_identity()
     data = request.get_json()
 
@@ -66,6 +111,24 @@ def add_goal():
 @goal_bp.route("/goals", methods=["GET"])
 @jwt_required()
 def get_goals():
+    """Get all goals
+    Retrieves a list of all goals for the authenticated user, with optional filtering by status.
+    ---
+    tags:
+      - Goal
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum: [active, completed, paused]
+        description: Filter goals by status.
+    responses:
+      200:
+        description: A list of goals.
+    """
     user_id = get_jwt_identity()
     status = request.args.get("status")
     
@@ -82,6 +145,26 @@ def get_goals():
 @goal_bp.route("/goals/<int:id>", methods=["GET"])
 @jwt_required()
 def get_goal(id):
+    """Get a specific goal
+    Retrieves a single goal by its ID.
+    ---
+    tags:
+      - Goal
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the goal to retrieve.
+    responses:
+      200:
+        description: The goal details.
+      404:
+        description: Goal not found.
+    """
     user_id = get_jwt_identity()
     goal = Goal.query.filter_by(id=id, user_id=user_id).first_or_404()
     return jsonify(goal.to_dict())
@@ -89,6 +172,51 @@ def get_goal(id):
 @goal_bp.route("/goals/<int:id>", methods=["PUT"])
 @jwt_required()
 def update_goal(id):
+    """Update a goal
+    Updates the details of a specific goal.
+    ---
+    tags:
+      - Goal
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the goal to update.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              target_amount:
+                type: number
+                format: float
+              current_amount:
+                type: number
+                format: float
+              target_date:
+                type: string
+                format: date
+              status:
+                type: string
+                enum: [active, completed, paused]
+    responses:
+      200:
+        description: Goal updated successfully.
+      400:
+        description: Bad request (e.g., invalid data).
+      404:
+        description: Goal not found.
+    """
     user_id = get_jwt_identity()
     goal = Goal.query.filter_by(id=id, user_id=user_id).first_or_404()
     data = request.get_json()
@@ -139,6 +267,26 @@ def update_goal(id):
 @goal_bp.route("/goals/<int:id>", methods=["DELETE"])
 @jwt_required()
 def delete_goal(id):
+    """Delete a goal
+    Deletes a specific goal by its ID.
+    ---
+    tags:
+      - Goal
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the goal to delete.
+    responses:
+      200:
+        description: Goal deleted successfully.
+      404:
+        description: Goal not found.
+    """
     user_id = get_jwt_identity()
     goal = Goal.query.filter_by(id=id, user_id=user_id).first_or_404()
     db.session.delete(goal)
@@ -148,6 +296,41 @@ def delete_goal(id):
 @goal_bp.route("/goals/<int:id>/contribute", methods=["POST"])
 @jwt_required()
 def contribute_to_goal(id):
+    """Contribute to a goal
+    Adds a contribution to the current amount of a goal.
+    ---
+    tags:
+      - Goal
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the goal to contribute to.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - amount
+            properties:
+              amount:
+                type: number
+                format: float
+                example: 100.00
+    responses:
+      200:
+        description: Contribution added successfully.
+      400:
+        description: Bad request (e.g., missing or invalid amount).
+      404:
+        description: Goal not found.
+    """
     user_id = get_jwt_identity()
     goal = Goal.query.filter_by(id=id, user_id=user_id).first_or_404()
     data = request.get_json()
@@ -174,6 +357,37 @@ def contribute_to_goal(id):
 @goal_bp.route("/goals/summary", methods=["GET"])
 @jwt_required()
 def get_goals_summary():
+    """Get goals summary
+    Retrieves a summary of all goals for the authenticated user.
+    ---
+    tags:
+      - Goal
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: A summary of goals.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                total_goals:
+                  type: integer
+                active_goals:
+                  type: integer
+                completed_goals:
+                  type: integer
+                total_target_amount:
+                  type: number
+                  format: float
+                total_current_amount:
+                  type: number
+                  format: float
+                total_progress_percentage:
+                  type: number
+                  format: float
+    """
     user_id = get_jwt_identity()
     
     query = Goal.query
