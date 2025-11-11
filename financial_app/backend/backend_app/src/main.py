@@ -36,6 +36,17 @@ def create_app(config_name='default'):
     migrate.init_app(app, db)
     CORS(app, origins=app.config['CORS_ORIGINS'], supports_credentials=True)
 
+    # Initialize Flasgger
+    from flasgger import Swagger
+    Swagger(app, template_file='swagger_template.yml')
+
+    @app.before_request
+    def protect_swagger_ui():
+        if request.path.startswith('/apidocs'):
+            api_key = request.args.get('apiKey')
+            if api_key != os.getenv('SWAGGER_UI_API_KEY'):
+                return jsonify({"message": "Unauthorized: Invalid or missing API key for Swagger UI"}), 401
+
     setup_logging(app)
 
     # Importar e registrar blueprints
@@ -47,8 +58,10 @@ def create_app(config_name='default'):
     
     from src.routes.investment import investment_bp
     from src.routes.goal import goal_bp
+    from src.routes.admin import admin_bp
 
     app.register_blueprint(user_bp, url_prefix='/api')
+    app.register_blueprint(admin_bp, url_prefix='/api')
     app.register_blueprint(category_bp, url_prefix='/api')
     app.register_blueprint(payment_method_bp, url_prefix='/api')
     app.register_blueprint(investment_type_bp, url_prefix='/api')
