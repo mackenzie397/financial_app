@@ -1,6 +1,7 @@
 import os
 from functools import wraps
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from src.models.user import db
 
 admin_bp = Blueprint("admin_bp", __name__)
@@ -16,13 +17,15 @@ def api_key_required(f):
 
 @admin_bp.route("/admin/clean-database", methods=["POST"])
 @api_key_required
+@jwt_required()
 def clean_database():
     """Clean Database
-    Drops and recreates all database tables.
+    Drops and recreates all database tables. Requires user authentication and a specific API key.
     ---
     tags:
       - Admin
     security:
+      - bearerAuth: []
       - apiKey: []
     responses:
       200:

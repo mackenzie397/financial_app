@@ -17,22 +17,19 @@ def test_clean_database_unauthorized(client):
     )
     assert response.status_code == HTTPStatus.UNAUTHORIZED
 
-def test_clean_database_authorized(client):
+def test_clean_database_authorized(auth_client):
     """
-    Tests that the clean-database endpoint works with a valid API key.
+    Tests that the clean-database endpoint works with a valid API key and user authentication.
     """
-    # 1. Create a user to ensure there's data
-    user = User(username='testuser_to_delete', email='delete@example.com')
-    user.set_password('Password123!')
-    db.session.add(user)
-    db.session.commit()
-    assert User.query.count() == 1
+    client, _ = auth_client
+    # auth_client fixture already creates a user. Let's ensure it exists.
+    assert User.query.count() >= 1
 
     # 2. Set the secret key in the environment for the test
     secret_key = 'test-secret-key'
     os.environ['CLEAN_DB_SECRET_KEY'] = secret_key
 
-    # 3. Call the endpoint with the correct key
+    # 3. Call the endpoint with the correct key (auth_client provides JWT)
     response = client.post(
         '/api/admin/clean-database',
         headers={'X-API-KEY': secret_key}

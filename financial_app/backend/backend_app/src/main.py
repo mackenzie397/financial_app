@@ -46,13 +46,13 @@ def create_app(config_name='default'):
             "version": "1.0.0",
         },
         "servers": [{"url": "/api", "description": "API Root"}],
-        "security": [{"cookieAuth": []}],
         "components": {
             "securitySchemes": {
-                "cookieAuth": {
-                    "type": "apiKey",
-                    "in": "cookie",
-                    "name": "access_token_cookie"
+                "bearerAuth": {
+                    "type": "http",
+                    "scheme": "bearer",
+                    "bearerFormat": "JWT",
+                    "description": "Enter your access token in the format: Bearer {token}"
                 },
                 "apiKey": {
                     "type": "apiKey",

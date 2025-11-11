@@ -11,6 +11,50 @@ investment_bp = Blueprint("investment_bp", __name__)
 @investment_bp.route("/investments", methods=["POST"])
 @jwt_required()
 def add_investment():
+    """Add a new investment
+    Creates a new investment for the authenticated user.
+    ---
+    tags:
+      - Investment
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - amount
+              - investment_type_id
+            properties:
+              name:
+                type: string
+                example: "Tech Stocks Portfolio"
+              amount:
+                type: number
+                format: float
+                example: 5000.00
+              date:
+                type: string
+                format: date
+                example: "2024-01-15"
+              current_value:
+                type: number
+                format: float
+                example: 5250.50
+              investment_type_id:
+                type: integer
+                example: 1
+    responses:
+      201:
+        description: Investment created successfully.
+      400:
+        description: Bad request (e.g., missing fields, invalid data).
+      404:
+        description: Not found (e.g., investment type not found).
+    """
     user_id = get_jwt_identity()
     data = request.get_json()
 
@@ -71,6 +115,35 @@ def add_investment():
 @investment_bp.route("/investments", methods=["GET"])
 @jwt_required()
 def get_investments():
+    """Get all investments
+    Retrieves a list of all investments for the authenticated user, with optional filtering.
+    ---
+    tags:
+      - Investment
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: query
+        name: investment_type_id
+        schema:
+          type: integer
+        description: Filter investments by type ID.
+      - in: query
+        name: year
+        schema:
+          type: integer
+        description: Filter investments by year.
+      - in: query
+        name: month
+        schema:
+          type: integer
+        description: Filter investments by month.
+    responses:
+      200:
+        description: A list of investments.
+      400:
+        description: Bad request (e.g., invalid filter parameters).
+    """
     user_id = get_jwt_identity()
     investment_type_id = request.args.get("investment_type_id")
     year = request.args.get("year")
@@ -107,6 +180,26 @@ def get_investments():
 @investment_bp.route("/investments/<int:id>", methods=["GET"])
 @jwt_required()
 def get_investment(id):
+    """Get a specific investment
+    Retrieves a single investment by its ID.
+    ---
+    tags:
+      - Investment
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the investment to retrieve.
+    responses:
+      200:
+        description: The investment details.
+      404:
+        description: Investment not found.
+    """
     user_id = get_jwt_identity()
     investment = Investment.query.filter_by(id=id, user_id=user_id).first_or_404()
     return jsonify(investment.to_dict())
@@ -114,6 +207,48 @@ def get_investment(id):
 @investment_bp.route("/investments/<int:id>", methods=["PUT"])
 @jwt_required()
 def update_investment(id):
+    """Update an investment
+    Updates the details of a specific investment.
+    ---
+    tags:
+      - Investment
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the investment to update.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              amount:
+                type: number
+                format: float
+              date:
+                type: string
+                format: date
+              current_value:
+                type: number
+                format: float
+              investment_type_id:
+                type: integer
+    responses:
+      200:
+        description: Investment updated successfully.
+      400:
+        description: Bad request (e.g., invalid data).
+      404:
+        description: Not found (e.g., investment or investment type not found).
+    """
     user_id = get_jwt_identity()
     investment = Investment.query.filter_by(id=id, user_id=user_id).first_or_404()
     data = request.get_json()
@@ -168,6 +303,26 @@ def update_investment(id):
 @investment_bp.route("/investments/<int:id>", methods=["DELETE"])
 @jwt_required()
 def delete_investment(id):
+    """Delete an investment
+    Deletes a specific investment by its ID.
+    ---
+    tags:
+      - Investment
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the investment to delete.
+    responses:
+      200:
+        description: Investment deleted successfully.
+      404:
+        description: Investment not found.
+    """
     user_id = get_jwt_identity()
     investment = Investment.query.filter_by(id=id, user_id=user_id).first_or_404()
     db.session.delete(investment)
@@ -177,6 +332,41 @@ def delete_investment(id):
 @investment_bp.route("/investments/<int:id>/contribute", methods=["POST"])
 @jwt_required()
 def contribute_to_investment(id):
+    """Contribute to an investment
+    Adds a contribution to the current value of an investment.
+    ---
+    tags:
+      - Investment
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the investment to contribute to.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - amount
+            properties:
+              amount:
+                type: number
+                format: float
+                example: 500.00
+    responses:
+      200:
+        description: Contribution added successfully.
+      400:
+        description: Bad request (e.g., missing or invalid amount).
+      404:
+        description: Investment not found.
+    """
     user_id = get_jwt_identity()
     investment = Investment.query.filter_by(id=id, user_id=user_id).first_or_404()
     data = request.get_json()
@@ -199,6 +389,41 @@ def contribute_to_investment(id):
 @investment_bp.route("/investments/<int:id>/withdraw", methods=["POST"])
 @jwt_required()
 def withdraw_from_investment(id):
+    """Withdraw from an investment
+    Makes a withdrawal from the current value of an investment.
+    ---
+    tags:
+      - Investment
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the investment to withdraw from.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - amount
+            properties:
+              amount:
+                type: number
+                format: float
+                example: 250.00
+    responses:
+      200:
+        description: Withdrawal made successfully.
+      400:
+        description: Bad request (e.g., missing, invalid, or insufficient amount).
+      404:
+        description: Investment not found.
+    """
     user_id = get_jwt_identity()
     investment = Investment.query.filter_by(id=id, user_id=user_id).first_or_404()
     data = request.get_json()
@@ -224,6 +449,36 @@ def withdraw_from_investment(id):
 @investment_bp.route("/investments/summary", methods=["GET"])
 @jwt_required()
 def get_investments_summary():
+    """Get investments summary
+    Retrieves a summary of all investments for the authenticated user.
+    ---
+    tags:
+      - Investment
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: A summary of investments.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                total_invested:
+                  type: number
+                  format: float
+                total_current_value:
+                  type: number
+                  format: float
+                total_profit_loss:
+                  type: number
+                  format: float
+                total_profit_loss_percentage:
+                  type: number
+                  format: float
+                investment_count:
+                  type: integer
+    """
     user_id = get_jwt_identity()
     
     query = Investment.query
