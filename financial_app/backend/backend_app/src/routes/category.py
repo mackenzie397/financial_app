@@ -68,11 +68,11 @@ def get_categories():
     security:
       - bearerAuth: []
     parameters:
-      - in: query
-        name: category_type
-        schema:
-          type: string
-          enum: [income, expense]
+      - name: category_type
+        in: query
+        type: string
+        enum: [income, expense]
+        required: false
         description: Filter categories by type (income or expense).
     responses:
       200:
