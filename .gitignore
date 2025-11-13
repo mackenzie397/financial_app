@@ -63,3 +63,33 @@ financial_app/frontend/frontend_app/node_modules/
 financial_app/frontend/frontend_app/dist/
 financial_app/frontend/frontend_app/.env
 financial_app/frontend/frontend_app/.eslintcache
+
+# Technical documentation and analysis files
+PLANO_TECNICO.md
+CHANGELOG.md
+*.md.bak
+analysis/
+docs/technical/
+
+# Test and development artifacts
+test_server.py
+test_server_full.py
+url_map_output.txt
+.coverage
+coverage/
+htmlcov/
+
+# Virtual environments and build artifacts
+venv_test/
+venv_prod/
+build/
+dist/
+*.egg-info/
+
+# Development tools
+.debugpy/
+.pylint/
+
+# Database backups
+*.db.bak
+*.sqlite3.bak
