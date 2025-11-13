@@ -2,6 +2,118 @@ import os
 from http import HTTPStatus
 from src.models.user import db, User
 
+def test_admin_login_invalid_credentials(client):
+    """
+    Tests that admin login fails with invalid credentials.
+    """
+    # Set admin credentials in environment
+    os.environ['ADMIN_USERNAME'] = 'admin'
+    os.environ['ADMIN_PASSWORD'] = 'correct_password'
+    
+    # Try with wrong password
+    response = client.post(
+        '/api/admin/login',
+        json={
+            'username': 'admin',
+            'password': 'wrong_password'
+        }
+    )
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert 'Invalid admin credentials' in response.json['message']
+    
+    # Try with wrong username
+    response = client.post(
+        '/api/admin/login',
+        json={
+            'username': 'wrong_user',
+            'password': 'correct_password'
+        }
+    )
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    
+    # Clean up
+    del os.environ['ADMIN_USERNAME']
+    del os.environ['ADMIN_PASSWORD']
+
+def test_admin_login_valid_credentials(client):
+    """
+    Tests that admin login succeeds with valid credentials and returns JWT token.
+    """
+    # Set admin credentials
+    os.environ['ADMIN_USERNAME'] = 'admin'
+    os.environ['ADMIN_PASSWORD'] = 'secure_admin_password'
+    
+    response = client.post(
+        '/api/admin/login',
+        json={
+            'username': 'admin',
+            'password': 'secure_admin_password'
+        }
+    )
+    assert response.status_code == HTTPStatus.OK
+    assert 'access_token' in response.json
+    assert response.json['message'] == 'Admin login successful'
+    
+    # Token should be a valid JWT-like string
+    token = response.json['access_token']
+    assert isinstance(token, str)
+    assert len(token) > 0
+    
+    # Clean up
+    del os.environ['ADMIN_USERNAME']
+    del os.environ['ADMIN_PASSWORD']
+
+def test_admin_login_missing_credentials(client):
+    """
+    Tests that admin login fails when required fields are missing.
+    """
+    # Missing password
+    response = client.post(
+        '/api/admin/login',
+        json={'username': 'admin'}
+    )
+    # Flask will return 401 because credentials don't match
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    
+    # Missing username
+    response = client.post(
+        '/api/admin/login',
+        json={'password': 'password'}
+    )
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+def test_admin_login_rate_limiting(client):
+    """
+    Tests that admin login is rate limited (10 per minute).
+    """
+    os.environ['ADMIN_USERNAME'] = 'admin'
+    os.environ['ADMIN_PASSWORD'] = 'password'
+    
+    # Make 10 failed login attempts
+    for i in range(10):
+        response = client.post(
+            '/api/admin/login',
+            json={
+                'username': 'admin',
+                'password': 'wrong'
+            }
+        )
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+    
+    # 11th attempt should be rate limited
+    response = client.post(
+        '/api/admin/login',
+        json={
+            'username': 'admin',
+            'password': 'wrong'
+        }
+    )
+    assert response.status_code == HTTPStatus.TOO_MANY_REQUESTS
+    
+    # Clean up
+    del os.environ['ADMIN_USERNAME']
+    del os.environ['ADMIN_PASSWORD']
+
 def test_clean_database_unauthorized(client):
     """
     Tests that the clean-database endpoint returns 401 without a valid API key.
