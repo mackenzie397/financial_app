@@ -2,15 +2,23 @@
 import os
 
 class Config:
-    JWT_TOKEN_LOCATION = ['cookies']
+    # Support both cookies and headers for JWT
+    # Cookies: For regular frontend (secure, HttpOnly)
+    # Headers: For admin dashboard (Bearer token)
+    JWT_TOKEN_LOCATION = ['cookies', 'headers']
     JWT_COOKIE_SECURE = True
+    JWT_COOKIE_HTTPONLY = True  # Prevent JavaScript access to cookie
     JWT_COOKIE_CSRF_PROTECT = False
-    JWT_COOKIE_SAMESITE = 'None'
+    JWT_COOKIE_SAMESITE = 'Lax'  # More restrictive than 'None'
+    JWT_HEADER_NAME = 'Authorization'
+    JWT_HEADER_TYPE = 'Bearer'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    JWT_COOKIE_SECURE = False  # Allow HTTP in development
+    JWT_COOKIE_SAMESITE = 'Lax'
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key')
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'dev-jwt-secret-key')
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}"
