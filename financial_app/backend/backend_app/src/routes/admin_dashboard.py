@@ -302,11 +302,12 @@ ADMIN_DASHBOARD_HTML = """
             
             showLoading(true);
             
-            fetch(`${API_URL}/login`, {
+            fetch(`${API_URL}/admin/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     username: username,
                     password: password
