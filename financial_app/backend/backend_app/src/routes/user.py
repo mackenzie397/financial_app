@@ -223,3 +223,157 @@ def current_user():
     if user:
         return jsonify(user.to_dict()), 200
     return jsonify({"message": "User not found"}), 404
+
+
+def _validate_password_strength(password):
+    """
+    Valida a força da senha de acordo com os requisitos:
+    - Mínimo 8 caracteres
+    - Contém letra maiúscula
+    - Contém letra minúscula
+    - Contém número
+    - Contém caractere especial
+    
+    Retorna None se válida, ou mensagem de erro se inválida.
+    """
+    if len(password) < 8:
+        return "Password must be at least 8 characters long"
+    if not re.search(r"[A-Z]", password):
+        return "Password must contain at least one uppercase letter"
+    if not re.search(r"[a-z]", password):
+        return "Password must contain at least one lowercase letter"
+    if not re.search(r"\d", password):
+        return "Password must contain at least one digit"
+    if not re.search(r"[^a-zA-Z0-9]", password):
+        return "Password must contain at least one special character"
+    return None
+
+
+@user_bp.route("/account/change-password", methods=["POST"])
+@jwt_required()
+@limiter.limit("5 per 15 minutes")
+def change_password():
+    """Change User Password
+    Allows an authenticated user to change their password.
+    Requires the old password for validation and a new password that meets strength requirements.
+    ---
+    tags:
+      - Account
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - old_password
+              - new_password
+            properties:
+              old_password:
+                type: string
+                example: "OldPassword123!"
+              new_password:
+                type: string
+                example: "NewPassword123!"
+    responses:
+      200:
+        description: Password changed successfully.
+      400:
+        description: Bad request (invalid input, weak password, or same password).
+      401:
+        description: Unauthorized (old password is incorrect).
+      429:
+        description: Too many requests (rate limited).
+    """
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
+    data = request.get_json()
+    old_password = data.get("old_password")
+    new_password = data.get("new_password")
+    
+    if not old_password or not new_password:
+        return jsonify({"message": "Old password and new password are required"}), 400
+    
+    # Validar senha antiga
+    if not user.check_password(old_password):
+        return jsonify({"message": "Old password is incorrect"}), 401
+    
+    # Validar que a nova senha é diferente da antiga
+    if old_password == new_password:
+        return jsonify({"message": "New password must be different from the old password"}), 400
+    
+    # Validar força da nova senha
+    strength_error = _validate_password_strength(new_password)
+    if strength_error:
+        return jsonify({"message": strength_error}), 400
+    
+    # Alterar senha
+    user.set_password(new_password)
+    db.session.commit()
+    
+    return jsonify({"message": "Password changed successfully"}), 200
+
+
+@user_bp.route("/account/update-profile", methods=["PUT"])
+@jwt_required()
+def update_profile():
+    """Update User Profile
+    Allows an authenticated user to update their profile information (email, username).
+    ---
+    tags:
+      - Account
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                example: newemail@example.com
+              username:
+                type: string
+                example: newusername
+    responses:
+      200:
+        description: Profile updated successfully.
+      400:
+        description: Bad request (invalid input).
+      409:
+        description: Conflict (email or username already exists).
+    """
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
+    data = request.get_json()
+    
+    # Validar e atualizar email se fornecido
+    if "email" in data and data["email"] != user.email:
+        email = bleach.clean(data["email"])
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            return jsonify({"message": "Invalid email format"}), 400
+        if User.query.filter_by(email=email).first():
+            return jsonify({"message": "Email already in use"}), 409
+        user.email = email
+    
+    # Validar e atualizar username se fornecido
+    if "username" in data and data["username"] != user.username:
+        username = bleach.clean(data["username"])
+        if User.query.filter_by(username=username).first():
+            return jsonify({"message": "Username already in use"}), 409
+        user.username = username
+    
+    db.session.commit()
+    return jsonify(user.to_dict()), 200
