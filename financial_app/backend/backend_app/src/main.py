@@ -48,9 +48,11 @@ def create_app(config_name='default'):
     from src.routes.investment import investment_bp
     from src.routes.goal import goal_bp
     from src.routes.admin import admin_bp
+    from src.routes.admin_dashboard import admin_dashboard_bp
 
     app.register_blueprint(user_bp, url_prefix='/api')
     app.register_blueprint(admin_bp, url_prefix='/api')
+    app.register_blueprint(admin_dashboard_bp)
     app.register_blueprint(category_bp, url_prefix='/api')
     app.register_blueprint(payment_method_bp, url_prefix='/api')
     app.register_blueprint(investment_type_bp, url_prefix='/api')

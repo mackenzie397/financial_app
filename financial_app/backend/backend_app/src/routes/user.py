@@ -142,7 +142,10 @@ def login():
 
     if user and user.check_password(password):
         access_token = create_access_token(identity=str(user.id))
-        response = jsonify(message="Login successful")
+        response = jsonify(
+            message="Login successful",
+            access_token=access_token
+        )
         # Note: Flasgger doesn't directly support documenting cookie setting,
         # but the response description clarifies this.
         set_access_cookies(response, access_token)
