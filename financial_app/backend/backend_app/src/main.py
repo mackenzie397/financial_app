@@ -36,23 +36,6 @@ def create_app(config_name='default'):
     migrate.init_app(app, db)
     CORS(app, origins=app.config['CORS_ORIGINS'], supports_credentials=True)
 
-    # Initialize Flasgger with minimal config to avoid conflicts
-    from flasgger import Swagger
-    import yaml
-
-    # Load the Swagger template from the YAML file
-    template_path = os.path.join(os.path.dirname(__file__), 'swagger_template.yml')
-    with open(template_path, 'r') as f:
-        swagger_template = yaml.safe_load(f)
-
-    # Initialize Swagger - passing ONLY the template, no extra config
-    Swagger(
-        app,
-        template=swagger_template,
-        swagger_ui=True,
-        specs_route='/api/spec'
-    )
-
     setup_logging(app)
 
     # Importar e registrar blueprints
