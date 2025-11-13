@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import Settings from './Settings.jsx';
-import Categories from './Categories.jsx';
 import DashboardPage from './DashboardPage.jsx'; // Importar a nova página
 import PeriodSelector from './PeriodSelector.jsx';
 import InvestmentForm from './InvestmentForm.jsx';
@@ -64,12 +63,6 @@ const Dashboard = () => {
           Metas
         </button>
         <button
-          onClick={() => setActiveView('categories')}
-          className={`px-4 py-2 rounded-md ${activeView === 'categories' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-        >
-          Categorias
-        </button>
-        <button
           onClick={() => setActiveView('reports')}
           className={`px-4 py-2 rounded-md ${activeView === 'reports' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >
@@ -95,13 +88,6 @@ const Dashboard = () => {
           <div className="bg-card rounded-lg shadow-md p-6">
             <h3 className="text-lg font-semibold mb-4">Minhas Metas</h3>
             <GoalsPage />
-          </div>
-        )}
-
-        {activeView === 'categories' && (
-          <div className="bg-card rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold mb-4">Gerenciar Categorias</h3>
-            <Categories />
           </div>
         )}
 
