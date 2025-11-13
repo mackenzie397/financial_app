@@ -9,12 +9,28 @@ Este projeto é um aplicativo financeiro full-stack, desenvolvido com um backend
 ## Funcionalidades
 
 - **Autenticação de Usuário:** Registro e login seguros para gerenciar suas finanças pessoais.
+  - Novo usuários recebem automaticamente categorias, formas de pagamento e tipos de investimento padrão
+  
+- **Gestão de Conta:** Editar informações da conta e alterar senha com segurança reforçada.
+  - Menu dropdown com opções "Minha Conta" e "Sair"
+  - Página "Minha Conta" com formulário de alteração de senha
+  - Validação de senha antiga antes de permitir alteração
+  - Requisitos de força de senha enforçados
+
 - **Dashboard Interativo:** Visão geral rápida de saldo, receitas, despesas e investimentos.
+
 - **Gestão de Transações:** Adicione, edite e exclua receitas e despesas, categorizando-as e associando-as a formas de pagamento.
+
 - **Definição e Acompanhamento de Metas:** Crie metas financeiras e acompanhe seu progresso.
+
 - **Gestão de Investimentos:** Registre e monitore seus investimentos, com diferentes tipos.
+
 - **Relatórios Detalhados:** Visualize gráficos de despesas por categoria, uso por forma de pagamento e resumos de período.
-- **Configurações:** Gerencie categorias, formas de pagamento e tipos de investimento personalizados.
+
+- **Configurações Centralizadas:** Gerencie categorias e formas de pagamento em um único lugar.
+  - Aba de Categorias para criar/editar/deletar categorias (despesa e receita)
+  - Aba de Formas de Pagamento para gerenciar métodos de pagamento
+  - Interface organizada com abas para melhor usabilidade
 
 ## Tecnologias Utilizadas
 
@@ -86,6 +102,41 @@ pnpm dev
 
 O aplicativo frontend estará disponível em `http://localhost:5173` (ou outra porta que o Vite configurar).
 
+## API Endpoints
+
+### Autenticação
+- `POST /api/register` - Registrar novo usuário (cria seeds automáticos)
+- `POST /api/login` - Login de usuário
+- `POST /api/logout` - Logout de usuário
+- `GET /api/current_user` - Obter dados do usuário autenticado
+
+### Conta do Usuário
+- `POST /api/account/change-password` - Alterar senha (requer autenticação)
+  - Body: `{ old_password: string, new_password: string }`
+  - Validações: Senha antiga deve estar correta, nova senha deve ter força mínima, não pode ser igual a antiga
+  - Rate limit: 5 tentativas por 15 minutos
+  
+- `PUT /api/account/update-profile` - Atualizar perfil (requer autenticação)
+  - Body: `{ email?: string, username?: string }`
+  - Validações: Email e username devem ser únicos
+
+### Categorias
+- `GET /api/categories` - Listar categorias do usuário
+  - Query: `?category_type=expense|income` (opcional)
+- `POST /api/categories` - Criar nova categoria
+- `PUT /api/categories/{id}` - Atualizar categoria
+- `DELETE /api/categories/{id}` - Deletar categoria
+
+### Formas de Pagamento
+- `GET /api/payment-methods` - Listar formas de pagamento
+- `POST /api/payment-methods` - Criar nova forma de pagamento
+- `PUT /api/payment-methods/{id}` - Atualizar forma de pagamento
+- `DELETE /api/payment-methods/{id}` - Deletar forma de pagamento
+
+### Transações, Metas, Investimentos
+- Endpoints completos para CRUD de transações, metas, investimentos e tipos de investimento
+- Veja `src/routes/` para documentação completa no Swagger (http://localhost:5000/apidocs/)
+
 ## Estrutura do Projeto
 
 ```
@@ -94,6 +145,8 @@ financial_app/
 ├── start_frontend.ps1
 ├── .gitignore
 ├── README.md
+├── CHANGELOG.md
+├── PLANO_TECNICO.md
 ├── financial_app/
 │   ├── backend/
 │   │   └── backend_app/
