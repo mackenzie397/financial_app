@@ -46,7 +46,7 @@ def create_app(config_name='default'):
         swagger_template = yaml.safe_load(f)
 
     # Initialize Swagger with OpenAPI 3.0 template only (no swagger field conflict)
-    Swagger(app, template=swagger_template, spec_url_prefix='/api')
+    Swagger(app, template=swagger_template)
 
     @app.before_request
     def protect_swagger_ui():

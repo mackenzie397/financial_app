@@ -9,8 +9,8 @@ class NoSensitiveDataFilter(logging.Filter):
     def filter(self, record):
         message = record.getMessage()
         for field in self.SENSITIVE_FIELDS:
-            message = re.sub(r'(\'' + field + '\':\s*)\'[^\']*\'', r'\1\'[REDACTED]\'', message)
-            message = re.sub(r'("' + field + '":\s*)"[^"]*"', r'\1"[REDACTED]"', message)
+            message = re.sub(r"(\'" + field + r"\':\s*)\'[^\']*\'", r"\1\'[REDACTED]\'", message)
+            message = re.sub(r'("' + field + r'":\s*)"[^"]*"', r'\1"[REDACTED]"', message)
         record.msg = message
         return True
 
