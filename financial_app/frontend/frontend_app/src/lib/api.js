@@ -20,6 +20,10 @@ export const login = (credentials) => api.post('/login', credentials);
 export const logout = () => api.post('/logout');
 export const getCurrentUser = () => api.get('/current_user');
 
+// Funções de conta do usuário
+export const changePassword = (passwordData) => api.post('/account/change-password', passwordData);
+export const updateProfile = (profileData) => api.put('/account/update-profile', profileData);
+
 // Funções de transações
 export const getTransactions = (params) => api.get('/transactions', { params });
 export const getTransactionById = (id) => api.get(`/transactions/${id}`);

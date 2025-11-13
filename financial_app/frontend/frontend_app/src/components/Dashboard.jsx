@@ -1,13 +1,21 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import Settings from './Settings.jsx';
-import DashboardPage from './DashboardPage.jsx'; // Importar a nova página
+import DashboardPage from './DashboardPage.jsx';
 import PeriodSelector from './PeriodSelector.jsx';
 import InvestmentForm from './InvestmentForm.jsx';
 import GoalsPage from './GoalsPage.jsx';
 import Charts from './Charts.jsx';
-import { Sun, Moon } from 'lucide-react';
+import AccountPage from './AccountPage.jsx';
+import { Sun, Moon, ChevronDown } from 'lucide-react';
 import { useTheme } from '../context/ThemeProvider.jsx';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -39,12 +47,23 @@ const Dashboard = () => {
           {user && <span className="text-sm text-muted-foreground">Bem vindo, {user.username}!</span>}
         </div>
         <div className="flex items-center space-x-4">
-          <button
-            onClick={logout}
-            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground px-4 py-2 rounded-md font-medium transition-colors"
-          >
-            Sair
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center space-x-2 px-4 py-2 rounded-md hover:bg-secondary text-foreground font-medium transition-colors cursor-pointer">
+                <span>{user?.username}</span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setActiveView('account')}>
+                Minha Conta
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={logout} className="text-destructive">
+                Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
@@ -102,6 +121,13 @@ const Dashboard = () => {
           <div className="bg-card rounded-lg shadow-md p-6">
             <h3 className="text-lg font-semibold mb-4">Configurações</h3>
             <Settings />
+          </div>
+        )}
+
+        {activeView === 'account' && (
+          <div className="bg-card rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Minha Conta</h3>
+            <AccountPage />
           </div>
         )}
       </main>
