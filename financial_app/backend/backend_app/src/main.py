@@ -93,6 +93,10 @@ def create_app(config_name='default'):
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
     def serve(path):
+        # Não interceptar rotas de API
+        if path.startswith('api/'):
+            return {"message": "Not Found"}, 404
+        
         static_folder_path = app.static_folder
         if static_folder_path is None:
             return "Static folder not configured", 404
