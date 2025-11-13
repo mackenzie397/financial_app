@@ -45,12 +45,8 @@ def create_app(config_name='default'):
     with open(template_path, 'r') as f:
         swagger_template = yaml.safe_load(f)
 
-    app.config['SWAGGER'] = {
-        'title': 'Financial App API',
-        'uiversion': 3,
-        'specs_route': '/apidocs/'
-    }
-    Swagger(app, template=swagger_template)
+    # Initialize Swagger with OpenAPI 3.0 template only (no swagger field conflict)
+    Swagger(app, template=swagger_template, spec_url_prefix='/api')
 
     @app.before_request
     def protect_swagger_ui():
