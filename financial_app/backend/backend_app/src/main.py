@@ -14,8 +14,9 @@ import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# Carrega as variáveis de ambiente do arquivo .env
-load_dotenv()
+# Carrega as variáveis de ambiente do arquivo .env na raiz do projeto
+dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../.env'))
+load_dotenv(dotenv_path)
 
 from src.config import config
 from src.extensions import jwt, limiter, migrate
