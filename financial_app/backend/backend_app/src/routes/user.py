@@ -1,5 +1,8 @@
 from flask import Blueprint, request, jsonify
 from src.models.user import db, User
+from src.models.category import Category
+from src.models.payment_method import PaymentMethod
+from src.models.investment_type import InvestmentType
 from flask_jwt_extended import (
     create_access_token, jwt_required, get_jwt_identity,
     set_access_cookies, unset_jwt_cookies
@@ -9,6 +12,38 @@ import re
 import bleach
 
 user_bp = Blueprint("user_bp", __name__)
+
+
+def _seed_user_defaults(user_id):
+    """
+    Cria categorias, formas de pagamento e tipos de investimento padrão para novo usuário.
+    Esta função garante que todo novo usuário comece com dados básicos.
+    """
+    default_categories = [
+        Category(user_id=user_id, name='Alimentação', category_type='expense'),
+        Category(user_id=user_id, name='Transporte', category_type='expense'),
+        Category(user_id=user_id, name='Diversão', category_type='expense'),
+        Category(user_id=user_id, name='Saúde', category_type='expense'),
+        Category(user_id=user_id, name='Moradia', category_type='expense'),
+        Category(user_id=user_id, name='Salário', category_type='income'),
+        Category(user_id=user_id, name='Freelance', category_type='income'),
+    ]
+    
+    default_payment_methods = [
+        PaymentMethod(user_id=user_id, name='Dinheiro'),
+        PaymentMethod(user_id=user_id, name='Cartão de Débito'),
+        PaymentMethod(user_id=user_id, name='Cartão de Crédito'),
+        PaymentMethod(user_id=user_id, name='PIX'),
+    ]
+    
+    default_investment_types = [
+        InvestmentType(user_id=user_id, name='Renda Fixa'),
+        InvestmentType(user_id=user_id, name='Ações'),
+        InvestmentType(user_id=user_id, name='Fundos Imobiliários'),
+    ]
+    
+    db.session.bulk_save_objects(default_categories + default_payment_methods + default_investment_types)
+    db.session.commit()
 
 @user_bp.route("/register", methods=["POST"])
 @limiter.limit("10 per minute")
@@ -66,6 +101,9 @@ def register():
     new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
+
+    # Seed default categories, payment methods, and investment types for new user
+    _seed_user_defaults(new_user.id)
 
     return jsonify({"message": "User registered successfully"}), 201
 
