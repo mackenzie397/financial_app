@@ -36,7 +36,7 @@ def create_app(config_name='default'):
     migrate.init_app(app, db)
     CORS(app, origins=app.config['CORS_ORIGINS'], supports_credentials=True)
 
-    # Initialize Flasgger
+    # Initialize Flasgger with minimal config to avoid conflicts
     from flasgger import Swagger
     import yaml
 
@@ -45,15 +45,13 @@ def create_app(config_name='default'):
     with open(template_path, 'r') as f:
         swagger_template = yaml.safe_load(f)
 
-    # Initialize Swagger with OpenAPI 3.0 template only (no swagger field conflict)
-    Swagger(app, template=swagger_template)
-
-    @app.before_request
-    def protect_swagger_ui():
-        if request.path.startswith('/apidocs'):
-            api_key = request.args.get('apiKey')
-            if api_key != os.getenv('SWAGGER_UI_API_KEY'):
-                return jsonify({"message": "Unauthorized: Invalid or missing API key for Swagger UI"}), 401
+    # Initialize Swagger - passing ONLY the template, no extra config
+    Swagger(
+        app,
+        template=swagger_template,
+        swagger_ui=True,
+        specs_route='/api/spec'
+    )
 
     setup_logging(app)
 
