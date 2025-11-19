@@ -6,8 +6,9 @@ def test_register(client):
         'email': 'test@example.com',
         'password': 'Password123!'
     })
-    assert response.status_code == HTTPStatus.CREATED
-    assert response.json['message'] == 'User registered successfully'
+    assert response.status_code == HTTPStatus.OK
+    assert response.json['message'] == 'Registration successful, logged in.'
+    assert 'access_token_cookie' in response.headers['Set-Cookie']
 
 def test_login_with_valid_credentials(client):
     client.post('/api/register', json={

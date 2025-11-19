@@ -12,14 +12,12 @@ const Register = ({ onToggleMode }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
 
     if (password !== confirmPassword) {
       setError('As senhas não coincidem');
@@ -35,12 +33,7 @@ const Register = ({ onToggleMode }) => {
 
     const result = await register(username, email, password);
     
-    if (result.success) {
-      setSuccess('Usuário registrado com sucesso! Você pode fazer login agora.');
-      setTimeout(() => {
-        onToggleMode();
-      }, 2000);
-    } else {
+    if (!result.success) {
       setError(result.message);
     }
     
@@ -63,11 +56,6 @@ const Register = ({ onToggleMode }) => {
             </Alert>
           )}
           
-          {success && (
-            <Alert>
-              <AlertDescription>{success}</AlertDescription>
-            </Alert>
-          )}
           
           <div className="space-y-2">
             <Label htmlFor="username">Usuário</Label>

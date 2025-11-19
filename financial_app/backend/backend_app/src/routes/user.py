@@ -35,8 +35,8 @@ def register():
                 type: string
                 example: StrongPassword123!
     responses:
-      201:
-        description: User registered successfully.
+      200:
+        description: Registration successful and user is logged in.
       400:
         description: Bad request (e.g., missing fields, invalid email, weak password).
       409:
@@ -67,7 +67,12 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"message": "User registered successfully"}), 201
+    # Automatically log in the user after registration
+    access_token = create_access_token(identity=str(new_user.id))
+    response = jsonify(message="Registration successful, logged in.")
+    set_access_cookies(response, access_token)
+
+    return response, 200
 
 @user_bp.route("/login", methods=["POST"])
 @limiter.limit("10 per minute")
